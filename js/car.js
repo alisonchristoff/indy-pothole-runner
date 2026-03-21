@@ -24,13 +24,14 @@ export class Car {
 
   update(inputDirection, speed) {
     // Apply input with momentum
-    const targetVelocity = inputDirection * CAR.MOVE_SPEED * 0.02;
+    const targetVelocity = inputDirection * CAR.MOVE_SPEED * 0.003;
     this.velocity = this.velocity * CAR.MOMENTUM + targetVelocity * (1 - CAR.MOMENTUM);
 
     this.x += this.velocity;
 
-    // Clamp to stay on screen (road is wider than screen at car's depth)
-    const maxX = 0.45;
+    // Road at car depth is ~705px half-width on 420px screen
+    // maxX=0.2 keeps car well within visible area
+    const maxX = 0.2;
     if (this.x < -maxX) { this.x = -maxX; this.velocity = 0; }
     if (this.x > maxX) { this.x = maxX; this.velocity = 0; }
 

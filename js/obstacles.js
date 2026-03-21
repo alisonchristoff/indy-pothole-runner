@@ -37,8 +37,8 @@ export class Obstacles {
       this.potholes.push({
         // Spawn 2000-4000 units ahead (arrives in ~2-4 seconds at initial speed)
         z: position + 2000 + Math.random() * 2000,
-        // x: -0.45 to 0.45 across the road (same range as car movement)
-        x: (Math.random() - 0.5) * 0.9,
+        // x: -0.2 to 0.2 across the road (same range as car movement)
+        x: (Math.random() - 0.5) * 0.4,
         size,
         isWater,
         hit: false,
@@ -79,11 +79,11 @@ export class Obstacles {
 
       const dz = Math.abs(pothole.z - carZ);
       if (dz < hitZoneZ) {
-        // Compare in normalized road coordinates (both -0.8 to 0.8 range)
+        // Compare in normalized road coordinates (both -0.2 to 0.2 range)
         const dx = Math.abs(pothole.x - playerX);
         const sizeScale = pothole.size / POTHOLE.MAX_SIZE;
         // Hit if car center is within pothole width
-        if (dx < 0.12 + sizeScale * 0.08) {
+        if (dx < 0.03 + sizeScale * 0.03) {
           pothole.hit = true;
           return pothole;
         }
