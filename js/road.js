@@ -42,7 +42,7 @@ export class Road {
     };
   }
 
-  render(ctx, width, height, position, playerX, speed, miles) {
+  render(ctx, width, height, position, playerX, speed, miles, scenery) {
     const season = this.getSeason(miles);
 
     // Draw sky (full canvas, road draws on top)
@@ -53,9 +53,14 @@ export class Road {
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, width, height);
 
+    // Draw skyline silhouette on the horizon
+    if (scenery) {
+      scenery.renderSkyline(ctx, width, height, season);
+    }
+
     const baseSegIndex = Math.floor(position / this.segmentLength);
 
-    // Camera stays centered on road — car moves across it
+    // Camera stays centered on road
     const projected = [];
     for (let n = 1; n <= ROAD.DRAW_DISTANCE; n++) {
       const segIndex = baseSegIndex + n;
@@ -68,29 +73,24 @@ export class Road {
     }
 
     // Draw from FARTHEST to NEAREST (painter's algorithm)
-    // projected[last] = farthest (smallest y, near horizon)
-    // projected[0] = nearest (largest y, near bottom of screen)
-    // So iterate from end to start
     for (let i = projected.length - 1; i > 0; i--) {
-      const farSeg = projected[i];     // farther from camera (smaller y)
-      const nearSeg = projected[i - 1]; // closer to camera (larger y)
+      const farSeg = projected[i];
+      const nearSeg = projected[i - 1];
 
       const s1 = farSeg.p;  // top of quad (smaller y)
       const s2 = nearSeg.p; // bottom of quad (larger y)
 
-      // Skip if entirely off screen
       if (s1.y > height && s2.y > height) continue;
       if (s2.y < 0) continue;
 
-      // Alternate colors based on world segment index
       const isAlt = Math.floor(farSeg.segIndex / ROAD.RUMBLE_LENGTH) % 2 === 0;
       const colors = this.getSeasonColors(season, isAlt);
 
-      // Grass (full-width horizontal strip between the two y values)
+      // Grass
       ctx.fillStyle = colors.grass;
       ctx.fillRect(0, s1.y, width, s2.y - s1.y + 1);
 
-      // Rumble strips (slightly wider than road)
+      // Rumble strips
       this.drawQuad(ctx,
         s1.x, s1.y, s1.w * 1.15,
         s2.x, s2.y, s2.w * 1.15,
@@ -108,6 +108,16 @@ export class Road {
           s1.x, s1.y, s1.w * 0.01,
           s2.x, s2.y, s2.w * 0.01,
           colors.lane);
+      }
+
+      // Snow on road edges (winter)
+      if (scenery) {
+        scenery.renderSnowForSegment(ctx, s1, s2, season);
+      }
+
+      // Roadside objects (trees, buildings)
+      if (scenery) {
+        scenery.renderRoadsideForSegment(ctx, s1, s2, farSeg.segIndex, width, height, season);
       }
     }
   }

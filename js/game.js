@@ -7,6 +7,7 @@ import { Road } from './road.js';
 import { Car } from './car.js';
 import { Input } from './input.js';
 import { Obstacles } from './obstacles.js';
+import { Scenery } from './scenery.js';
 import { HUD } from './hud.js';
 import { Screens } from './screens.js';
 import { Audio } from './audio.js';
@@ -27,6 +28,7 @@ class Game {
     this.car = new Car();
     this.input = new Input(this.canvas);
     this.obstacles = new Obstacles(this.road);
+    this.scenery = new Scenery();
     this.hud = new HUD();
     this.screens = new Screens(this.canvas);
     this.audio = new Audio();
@@ -133,6 +135,7 @@ class Game {
     this.nextStreetIndex = 1;
     this.car.reset();
     this.obstacles.reset();
+    this.scenery.reset();
     this.hud.reset();
   }
 
@@ -184,6 +187,9 @@ class Game {
       this.nextStreetIndex++;
     }
 
+    // Scenery (street signs)
+    this.scenery.updateSigns(this.miles, this.position);
+
     // Obstacles
     this.obstacles.update(this.position, this.speed, this.miles);
 
@@ -226,14 +232,20 @@ class Game {
       ctx.translate(shake.x, shake.y);
     }
 
-    // Road
-    this.road.render(ctx, w, h, this.position, this.car.x, this.speed, this.miles);
+    // Road + scenery (skyline, roadside objects, snow)
+    this.road.render(ctx, w, h, this.position, this.car.x, this.speed, this.miles, this.scenery);
+
+    // Street signs
+    this.scenery.renderStreetSigns(ctx, w, h, this.position);
 
     // Potholes
     this.obstacles.render(ctx, w, h, this.position);
 
     // Car
     this.car.render(ctx, w, h);
+
+    // Weather overlay (rain in spring)
+    this.scenery.renderWeather(ctx, w, h, this.road.getSeason(this.miles), this.animPhase);
 
     if (shake.x || shake.y) {
       ctx.restore();
