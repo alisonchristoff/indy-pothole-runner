@@ -32,10 +32,10 @@ export const CAR = {
 };
 
 export const POTHOLE = {
-  SPAWN_RATE_INITIAL: 0.04,
+  SPAWN_RATE_INITIAL: 0.012,
   SPAWN_RATE_MAX: 0.10,
-  MIN_SIZE: 30,
-  MAX_SIZE: 80,
+  MIN_SIZE: 20,
+  MAX_SIZE: 70,
 };
 
 export const SEASONS = {

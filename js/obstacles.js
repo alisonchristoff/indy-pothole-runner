@@ -15,15 +15,13 @@ export class Obstacles {
   }
 
   getSpawnRate(miles) {
-    let rate = POTHOLE.SPAWN_RATE_INITIAL;
-    if (miles >= SEASONS.SPRING.start) {
-      rate = POTHOLE.SPAWN_RATE_MAX;
-    } else if (miles >= SEASONS.WINTER.start) {
-      rate = POTHOLE.SPAWN_RATE_INITIAL + (POTHOLE.SPAWN_RATE_MAX - POTHOLE.SPAWN_RATE_INITIAL) * 0.6;
-    } else if (miles >= SEASONS.FALL.start) {
-      rate = POTHOLE.SPAWN_RATE_INITIAL + (POTHOLE.SPAWN_RATE_MAX - POTHOLE.SPAWN_RATE_INITIAL) * 0.3;
-    }
-    return rate;
+    // Smooth ramp from initial to max over the full distance
+    // progress goes 0 → 1 as miles go 0 → SPRING start
+    const maxMiles = SEASONS.SPRING.start; // 4.0 mi
+    const progress = Math.min(1, miles / maxMiles);
+    // Ease-in curve so early game stays easy longer
+    const eased = progress * progress;
+    return POTHOLE.SPAWN_RATE_INITIAL + (POTHOLE.SPAWN_RATE_MAX - POTHOLE.SPAWN_RATE_INITIAL) * eased;
   }
 
   update(position, speed, miles) {
