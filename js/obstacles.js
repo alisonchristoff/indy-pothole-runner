@@ -37,8 +37,8 @@ export class Obstacles {
       this.potholes.push({
         // Spawn 2000-4000 units ahead (arrives in ~2-4 seconds at initial speed)
         z: position + 2000 + Math.random() * 2000,
-        // x: -0.8 to 0.8 across the road (same scale as car.x)
-        x: (Math.random() - 0.5) * 1.6,
+        // x: -0.45 to 0.45 across the road (same range as car movement)
+        x: (Math.random() - 0.5) * 0.9,
         size,
         isWater,
         hit: false,

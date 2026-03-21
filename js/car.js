@@ -29,8 +29,8 @@ export class Car {
 
     this.x += this.velocity;
 
-    // Clamp to road bounds
-    const maxX = 0.8;
+    // Clamp to stay on screen (road is wider than screen at car's depth)
+    const maxX = 0.45;
     if (this.x < -maxX) { this.x = -maxX; this.velocity = 0; }
     if (this.x > maxX) { this.x = maxX; this.velocity = 0; }
 
