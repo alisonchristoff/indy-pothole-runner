@@ -26,20 +26,16 @@ export class Road {
     };
   }
 
-  // Project a world-space point to screen-space
-  // Returns { x, y, w } in screen pixels
-  project(worldX, worldZ, cameraZ, playerX, width, height) {
+  // Project a world-space Z position to screen-space
+  project(worldX, worldZ, cameraZ, cameraX, width, height) {
     const dz = worldZ - cameraZ;
     if (dz <= 0) return null;
 
-    // Perspective scale factor
     const scale = ROAD.CAMERA_DEPTH / dz;
-
-    // Horizon sits at ~40% from top
     const horizonY = height * 0.4;
 
     return {
-      x: width / 2 + scale * (worldX - playerX) * width / 2,
+      x: width / 2 + scale * (worldX - cameraX) * width / 2,
       y: horizonY + scale * ROAD.CAMERA_HEIGHT * height,
       w: scale * ROAD.ROAD_WIDTH * width / 2,
       scale,
@@ -49,79 +45,72 @@ export class Road {
   render(ctx, width, height, position, playerX, speed, miles) {
     const season = this.getSeason(miles);
 
-    // Draw sky
+    // Draw sky (full canvas, road draws on top)
     const skyColors = COLORS['SKY_' + season];
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.45);
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.5);
     skyGrad.addColorStop(0, skyColors.top);
     skyGrad.addColorStop(1, skyColors.bottom);
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, width, height);
 
-    // The camera is at `position`. We draw segments ahead of the camera.
     const baseSegIndex = Math.floor(position / this.segmentLength);
-    const drawCount = ROAD.DRAW_DISTANCE;
+    const cameraX = playerX * ROAD.ROAD_WIDTH * 0.3;
 
-    // Project all visible segments
+    // Project all segments from nearest to farthest
+    // n=1 is closest to camera, n=DRAW_DISTANCE is farthest
     const projected = [];
-    for (let n = 1; n <= drawCount; n++) {
+    for (let n = 1; n <= ROAD.DRAW_DISTANCE; n++) {
       const segIndex = baseSegIndex + n;
       const worldZ = segIndex * this.segmentLength;
 
-      const p = this.project(0, worldZ, position, playerX * ROAD.ROAD_WIDTH * 0.3, width, height);
+      const p = this.project(0, worldZ, position, cameraX, width, height);
       if (!p) continue;
-      if (p.y < 0) continue; // above screen
 
-      projected.push({ p, segIndex, n });
+      projected.push({ p, segIndex });
     }
 
-    // Draw back to front (far segments first, near segments on top)
-    // But we need pairs: each quad is drawn between segment[i] and segment[i+1]
-    // Far segments have smaller y (closer to horizon), near segments have larger y (closer to bottom)
-    // So we iterate from beginning (far) to end (near)
+    // Draw from FARTHEST to NEAREST (painter's algorithm)
+    // projected[last] = farthest (smallest y, near horizon)
+    // projected[0] = nearest (largest y, near bottom of screen)
+    // So iterate from end to start
+    for (let i = projected.length - 1; i > 0; i--) {
+      const farSeg = projected[i];     // farther from camera (smaller y)
+      const nearSeg = projected[i - 1]; // closer to camera (larger y)
 
-    let clipY = height; // only draw above previous segment
+      const s1 = farSeg.p;  // top of quad (smaller y)
+      const s2 = nearSeg.p; // bottom of quad (larger y)
 
-    for (let i = projected.length - 2; i >= 0; i--) {
-      const far = projected[i];
-      const near = projected[i + 1];
-
-      const s1 = far.p;   // farther (smaller y, closer to horizon)
-      const s2 = near.p;  // nearer (larger y, closer to bottom)
-
-      // Clip — don't draw if below the clip line
-      if (s1.y >= clipY) continue;
-      if (s2.y > clipY) {
-        // s2 extends below clip; we still draw but grass gets clipped naturally
-      }
+      // Skip if entirely off screen
+      if (s1.y > height && s2.y > height) continue;
+      if (s2.y < 0) continue;
 
       // Alternate colors based on world segment index
-      const isAlt = Math.floor(far.segIndex / ROAD.RUMBLE_LENGTH) % 2 === 0;
+      const isAlt = Math.floor(farSeg.segIndex / ROAD.RUMBLE_LENGTH) % 2 === 0;
       const colors = this.getSeasonColors(season, isAlt);
 
-      // Draw grass strip (full width, between s1.y and s2.y)
-      const grassTop = Math.max(0, s1.y);
-      const grassBot = Math.min(clipY, s2.y);
-      if (grassBot > grassTop) {
-        ctx.fillStyle = colors.grass;
-        ctx.fillRect(0, grassTop, width, grassBot - grassTop + 1);
-      }
+      // Grass (full-width horizontal strip between the two y values)
+      ctx.fillStyle = colors.grass;
+      ctx.fillRect(0, s1.y, width, s2.y - s1.y + 1);
 
-      // Draw rumble strips (slightly wider than road)
-      const rumbleW1 = s1.w * 1.15;
-      const rumbleW2 = s2.w * 1.15;
-      this.drawQuad(ctx, s1.x, s1.y, rumbleW1, s2.x, s2.y, rumbleW2, colors.rumble);
+      // Rumble strips (slightly wider than road)
+      this.drawQuad(ctx,
+        s1.x, s1.y, s1.w * 1.15,
+        s2.x, s2.y, s2.w * 1.15,
+        colors.rumble);
 
-      // Draw road surface
-      this.drawQuad(ctx, s1.x, s1.y, s1.w, s2.x, s2.y, s2.w, colors.road);
+      // Road surface
+      this.drawQuad(ctx,
+        s1.x, s1.y, s1.w,
+        s2.x, s2.y, s2.w,
+        colors.road);
 
-      // Draw lane markings (dashed center line)
+      // Dashed center lane marking
       if (colors.lane) {
-        const laneW1 = s1.w * 0.01;
-        const laneW2 = s2.w * 0.01;
-        this.drawQuad(ctx, s1.x, s1.y, laneW1, s2.x, s2.y, laneW2, colors.lane);
+        this.drawQuad(ctx,
+          s1.x, s1.y, s1.w * 0.01,
+          s2.x, s2.y, s2.w * 0.01,
+          colors.lane);
       }
-
-      clipY = s1.y;
     }
   }
 

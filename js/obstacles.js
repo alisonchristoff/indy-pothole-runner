@@ -70,10 +70,15 @@ export class Obstacles {
   }
 
   render(ctx, width, height, position, playerX) {
-    for (const pothole of this.potholes) {
-      const dz = pothole.z - position;
-      if (dz <= 0 || dz > this.road.segmentLength * ROAD.DRAW_DISTANCE) continue;
+    // Sort far-to-near so closer potholes draw on top
+    const sorted = this.potholes
+      .filter(p => {
+        const dz = p.z - position;
+        return dz > 0 && dz <= this.road.segmentLength * ROAD.DRAW_DISTANCE;
+      })
+      .sort((a, b) => b.z - a.z);
 
+    for (const pothole of sorted) {
       // Use the same projection as the road
       const p = this.road.project(
         pothole.x * ROAD.ROAD_WIDTH * 0.3,
