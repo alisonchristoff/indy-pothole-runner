@@ -151,17 +151,17 @@ function drawBuilding(ctx, x, baseY, w, h, season) {
   ctx.fillStyle = bodyColors[Math.floor(Math.abs(x * 7)) % bodyColors.length];
   ctx.fillRect(x - w / 2, baseY - h, w, h);
 
-  // Windows (grid)
+  // Windows (fixed 3x3 grid so rows don't change with perspective)
   const winColor = season === 'WINTER' || season === 'FALL' ? '#FFE88B' : '#AAD4E8';
   ctx.fillStyle = winColor;
-  const winW = w * 0.15;
-  const winH = h * 0.1;
   const cols = 3;
-  const rows = Math.max(2, Math.floor(h / 12));
+  const rows = 3;
+  const winW = w * 0.15;
+  const winH = h * 0.08;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const wx = x - w / 2 + w * 0.15 + c * (w * 0.25);
-      const wy = baseY - h + h * 0.1 + r * (h / rows);
+      const wy = baseY - h + h * 0.12 + r * (h * 0.28);
       ctx.fillRect(wx, wy, winW, winH);
     }
   }
@@ -303,20 +303,20 @@ export class Scenery {
     const side = h2 > 0.5 ? 1 : -1; // left or right of road
 
     // Object position: just outside the rumble strip
-    const edgeOffset = 1.3; // multiplier of road width
+    const edgeOffset = 1.35;
     const objX = s2.x + side * s2.w * edgeOffset;
     const objY = s2.y;
 
     // Scale object with perspective — proportional to road width
-    const objSize = Math.max(6, s2.w * 0.25);
+    const objSize = Math.max(8, s2.w * 0.5);
 
-    if (objSize < 5) return; // too small to see
+    if (objSize < 6) return; // too small to see
 
     if (isTree) {
       drawTree(ctx, objX, objY, objSize, season);
     } else {
-      const bldgW = objSize * 2;
-      const bldgH = objSize * (1.5 + h1 * 3);
+      const bldgW = objSize * 2.5;
+      const bldgH = objSize * (2 + h1 * 4);
       drawBuilding(ctx, objX, objY, bldgW, bldgH, season);
     }
   }
@@ -329,13 +329,18 @@ export class Scenery {
       const scale = ROAD.CAMERA_DEPTH / dz;
       const horizonY = height * 0.4;
       const screenY = horizonY + scale * ROAD.CAMERA_HEIGHT * height;
-      const roadW = scale * ROAD.ROAD_WIDTH * width / 2;
 
-      // Place sign on the right side of the road
-      const signX = width / 2 + roadW * 1.3;
-      const signScale = Math.min(3, roadW / 30);
+      // How far from horizon to bottom (0=horizon, 1=bottom of screen)
+      const progress = (screenY - horizonY) / (height - horizonY);
 
-      if (signScale < 0.4 || screenY < 0 || screenY > height) continue;
+      // Place sign on right side of screen, sliding in from edge
+      // At horizon it's at screen edge, at bottom it's further right (off screen)
+      const signX = width * 0.78 + progress * width * 0.1;
+
+      // Scale with perspective — bigger as it gets closer
+      const signScale = Math.max(0.5, progress * 2.5) * (width / 420);
+
+      if (progress < 0.05 || progress > 0.95) continue;
 
       drawStreetSign(ctx, signX, screenY, sign.name, signScale);
     }
