@@ -2,7 +2,7 @@
 // Car — Rendering and Movement
 // ============================================================
 
-import { CAR, COLORS } from './constants.js';
+import { CAR, ROAD, COLORS } from './constants.js';
 
 export class Car {
   constructor() {
@@ -49,8 +49,16 @@ export class Car {
   render(ctx, width, height) {
     const carW = CAR.WIDTH * (width / 420); // scale with screen
     const carH = carW * 0.65;
-    const cx = width / 2 + this.x * (width * 0.35);
     const cy = height * (1 - CAR.BOTTOM_OFFSET);
+
+    // Calculate road width at car's depth to position car correctly
+    // Car is at y = height * 0.82, horizon at height * 0.4
+    // scale = (cy - horizon) / (CAMERA_HEIGHT * height)
+    const horizon = height * 0.4;
+    const carScale = (cy - horizon) / (ROAD.CAMERA_HEIGHT * height);
+    const roadHalfWAtCar = carScale * ROAD.ROAD_WIDTH * width / 2;
+    // Car x position maps onto the road width at its depth
+    const cx = width / 2 + this.x * roadHalfWAtCar;
 
     // Bobbing
     const bob = Math.sin(this.bobPhase) * 1.5;

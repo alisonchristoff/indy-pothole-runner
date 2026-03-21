@@ -188,7 +188,7 @@ class Game {
     this.obstacles.update(this.position, this.speed, this.miles);
 
     // Collision
-    const hit = this.obstacles.checkCollision(this.car.x, this.position);
+    const hit = this.obstacles.checkCollision(this.car.x, this.position, this.width, this.height);
     if (hit) {
       this.car.hit();
       const dmg = this.car.damage;
@@ -230,7 +230,7 @@ class Game {
     this.road.render(ctx, w, h, this.position, this.car.x, this.speed, this.miles);
 
     // Potholes
-    this.obstacles.render(ctx, w, h, this.position, this.car.x);
+    this.obstacles.render(ctx, w, h, this.position);
 
     // Car
     this.car.render(ctx, w, h);

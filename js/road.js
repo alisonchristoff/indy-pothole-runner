@@ -54,16 +54,14 @@ export class Road {
     ctx.fillRect(0, 0, width, height);
 
     const baseSegIndex = Math.floor(position / this.segmentLength);
-    const cameraX = playerX * ROAD.ROAD_WIDTH * 0.3;
 
-    // Project all segments from nearest to farthest
-    // n=1 is closest to camera, n=DRAW_DISTANCE is farthest
+    // Camera stays centered on road — car moves across it
     const projected = [];
     for (let n = 1; n <= ROAD.DRAW_DISTANCE; n++) {
       const segIndex = baseSegIndex + n;
       const worldZ = segIndex * this.segmentLength;
 
-      const p = this.project(0, worldZ, position, cameraX, width, height);
+      const p = this.project(0, worldZ, position, 0, width, height);
       if (!p) continue;
 
       projected.push({ p, segIndex });
