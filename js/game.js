@@ -171,8 +171,8 @@ class Game {
     // Speed increases over time
     this.speed = Math.min(GAME.MAX_SPEED, this.speed + GAME.SPEED_INCREASE_RATE);
 
-    // Position advances
-    this.position += this.speed * this.road.segmentLength * 0.01;
+    // Position advances (no track looping — infinite road)
+    this.position += this.speed * this.road.segmentLength * 0.02;
 
     // Miles
     this.miles = this.position * GAME.MILES_PER_UNIT;

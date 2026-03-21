@@ -2,7 +2,7 @@
 // Potholes — Generation, Rendering, Collision Detection
 // ============================================================
 
-import { POTHOLE, GAME, ROAD, COLORS, SEASONS } from './constants.js';
+import { POTHOLE, ROAD, COLORS, SEASONS } from './constants.js';
 
 export class Obstacles {
   constructor(road) {
@@ -15,7 +15,6 @@ export class Obstacles {
   }
 
   getSpawnRate(miles) {
-    // Ramp up spawn rate based on season/distance
     let rate = POTHOLE.SPAWN_RATE_INITIAL;
     if (miles >= SEASONS.SPRING.start) {
       rate = POTHOLE.SPAWN_RATE_MAX;
@@ -30,38 +29,38 @@ export class Obstacles {
   update(position, speed, miles) {
     const spawnRate = this.getSpawnRate(miles);
 
-    // Spawn new potholes ahead
+    // Spawn new potholes far ahead
     if (Math.random() < spawnRate) {
       const size = POTHOLE.MIN_SIZE + Math.random() * (POTHOLE.MAX_SIZE - POTHOLE.MIN_SIZE);
-      // At spring, chance of water-filled pothole
       const isWater = miles >= SEASONS.SPRING.start && Math.random() < 0.3;
 
       this.potholes.push({
-        z: position + this.road.segmentLength * ROAD.DRAW_DISTANCE * 0.9,
-        x: (Math.random() - 0.5) * 1.4, // -0.7 to 0.7 across road
+        z: position + this.road.segmentLength * ROAD.DRAW_DISTANCE * 0.8,
+        x: (Math.random() - 0.5) * 1.4, // -0.7 to 0.7 across road width
         size,
         isWater,
         hit: false,
       });
     }
 
-    // Remove potholes that are behind the camera
-    this.potholes = this.potholes.filter(p => p.z > position - this.road.segmentLength * 5);
+    // Remove potholes that have scrolled behind the camera
+    this.potholes = this.potholes.filter(p => p.z > position - 500);
   }
 
   checkCollision(playerX, position) {
-    const carZ = position + this.road.segmentLength * 2; // car is a few segments ahead of camera
-    const hitZone = this.road.segmentLength * 3;
-    const hitXRange = 0.18;
+    // The car visually sits a few segments ahead of the camera position
+    const carZ = position + this.road.segmentLength * 3;
+    const hitZoneZ = this.road.segmentLength * 2;
 
     for (const pothole of this.potholes) {
       if (pothole.hit) continue;
 
       const dz = Math.abs(pothole.z - carZ);
-      if (dz < hitZone) {
+      if (dz < hitZoneZ) {
+        // Convert playerX (-0.8 to 0.8) to same scale as pothole.x (-0.7 to 0.7)
         const dx = Math.abs(pothole.x - playerX);
         const sizeScale = pothole.size / POTHOLE.MAX_SIZE;
-        if (dx < hitXRange + sizeScale * 0.12) {
+        if (dx < 0.15 + sizeScale * 0.1) {
           pothole.hit = true;
           return pothole;
         }
@@ -71,39 +70,41 @@ export class Obstacles {
   }
 
   render(ctx, width, height, position, playerX) {
-    const cameraY = ROAD.CAMERA_HEIGHT;
-
     for (const pothole of this.potholes) {
       const dz = pothole.z - position;
       if (dz <= 0 || dz > this.road.segmentLength * ROAD.DRAW_DISTANCE) continue;
 
-      const scale = ROAD.CAMERA_DEPTH / dz;
-      const halfW = width / 2;
-      const halfH = height / 2;
+      // Use the same projection as the road
+      const p = this.road.project(
+        pothole.x * ROAD.ROAD_WIDTH * 0.3,
+        pothole.z,
+        position,
+        playerX * ROAD.ROAD_WIDTH * 0.3,
+        width,
+        height
+      );
+      if (!p || p.y < 0 || p.y > height) continue;
 
-      const screenX = halfW + scale * (-playerX + pothole.x) * halfW;
-      const screenY = halfH - scale * cameraY * halfH;
-      const screenSize = scale * pothole.size * halfW * 0.5;
-
+      const screenSize = p.scale * pothole.size * width * 0.15;
       if (screenSize < 1) continue;
 
-      // Outer ring (shadow)
+      // Outer ring (shadow/depth)
       ctx.fillStyle = COLORS.POTHOLE_RING;
       ctx.beginPath();
-      ctx.ellipse(screenX, screenY, screenSize * 1.2, screenSize * 0.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(p.x, p.y, screenSize * 1.3, screenSize * 0.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Inner hole
       ctx.fillStyle = pothole.isWater ? '#2A4A6A' : COLORS.POTHOLE_FILL;
       ctx.beginPath();
-      ctx.ellipse(screenX, screenY, screenSize, screenSize * 0.4, 0, 0, Math.PI * 2);
+      ctx.ellipse(p.x, p.y, screenSize, screenSize * 0.35, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Water shimmer
       if (pothole.isWater) {
         ctx.fillStyle = 'rgba(100,160,220,0.3)';
         ctx.beginPath();
-        ctx.ellipse(screenX - screenSize * 0.2, screenY - screenSize * 0.1, screenSize * 0.4, screenSize * 0.15, 0, 0, Math.PI * 2);
+        ctx.ellipse(p.x - screenSize * 0.2, p.y - screenSize * 0.08, screenSize * 0.4, screenSize * 0.12, 0, 0, Math.PI * 2);
         ctx.fill();
       }
     }

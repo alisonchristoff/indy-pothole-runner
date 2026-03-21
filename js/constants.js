@@ -13,18 +13,13 @@ export const GAME = {
 };
 
 export const ROAD = {
-  SEGMENT_COUNT: 200,
-  ROAD_WIDTH: 2000,
+  ROAD_WIDTH: 1200,
   LANE_COUNT: 2,
   RUMBLE_LENGTH: 3, // segments per rumble strip alternation
-  DRAW_DISTANCE: 150,
-  CAMERA_HEIGHT: 1000,
-  CAMERA_DEPTH: null, // computed at init
-  FOV: 100, // field of view in degrees
+  DRAW_DISTANCE: 100,
+  CAMERA_HEIGHT: 150,
+  CAMERA_DEPTH: 0.84, // ~1/tan(25deg) — controls perspective strength
 };
-
-// Compute camera depth from FOV
-ROAD.CAMERA_DEPTH = 1 / Math.tan(((ROAD.FOV / 2) * Math.PI) / 180);
 
 export const CAR = {
   MOVE_SPEED: 5,
