@@ -230,7 +230,7 @@ export class Scenery {
   showStreetSign(name, position) {
     this.activeStreetSigns.push({
       name,
-      z: position + 1500, // place it ahead so player drives past it
+      z: position + 6000, // place it well ahead so player sees it approach
     });
   }
 
@@ -258,21 +258,23 @@ export class Scenery {
     if (side > 0 && roadEdge > width + 20) return;
     if (side < 0 && roadEdge < -20) return;
 
-    // Place object just outside road edge, with gap proportional to perspective
-    const gap = s2.w * 0.15;
-    const objX = roadEdge + side * gap;
-    const objY = s2.y;
-
     // Size proportional to road width at this depth
-    const objSize = Math.max(5, s2.w * 0.12);
+    const objSize = Math.max(5, s2.w * 0.3);
     if (objSize < 4) return;
 
+    const gap = s2.w * 0.08;
+    const objY = s2.y;
+
     if (isTree) {
-      drawTree(ctx, objX, objY, objSize, season);
+      // Anchor tree trunk at road edge + gap, foliage grows outward
+      const treeX = roadEdge + side * (gap + objSize * 0.2);
+      drawTree(ctx, treeX, objY, objSize, season);
     } else {
-      const bldgW = objSize * 1.5;
-      const bldgH = objSize * (1.5 + h1 * 2.5);
-      drawBuilding(ctx, objX, objY, bldgW, bldgH, season);
+      const bldgW = objSize * 1.8;
+      const bldgH = objSize * (2 + h1 * 3);
+      // Anchor building's road-facing edge at road edge + gap
+      const bldgX = roadEdge + side * (gap + bldgW / 2);
+      drawBuilding(ctx, bldgX, objY, bldgW, bldgH, season);
     }
   }
 
