@@ -12,43 +12,40 @@ function drawSkyline(ctx, width, horizonY, season) {
                        season === 'SPRING' ? '#2A3545' : '#1A2535';
 
   const baseY = horizonY + 2; // sit just below horizon
-  const scale = width / 420;
+  const s = width / 420 * 2; // 2x scale for visibility
 
   ctx.fillStyle = skylineColor;
-
-  // Buildings are drawn as simple rectangles/shapes from left to right
-  // Centered on the screen to feel like a distant downtown skyline
 
   const cx = width / 2;
 
   // Far left buildings (small)
-  drawRect(ctx, cx - 160 * scale, baseY, 18 * scale, -35 * scale);
-  drawRect(ctx, cx - 138 * scale, baseY, 14 * scale, -25 * scale);
-  drawRect(ctx, cx - 120 * scale, baseY, 20 * scale, -42 * scale);
+  drawRect(ctx, cx - 180 * s, baseY, 22 * s, -40 * s);
+  drawRect(ctx, cx - 155 * s, baseY, 16 * s, -30 * s);
+  drawRect(ctx, cx - 135 * s, baseY, 24 * s, -50 * s);
 
   // Lucas Oil Stadium (wide, low arch) — left of center
-  drawLucasOil(ctx, cx - 85 * scale, baseY, 50 * scale, 28 * scale);
+  drawLucasOil(ctx, cx - 100 * s, baseY, 60 * s, 35 * s);
 
   // Mid-left buildings
-  drawRect(ctx, cx - 50 * scale, baseY, 16 * scale, -48 * scale);
-  drawRect(ctx, cx - 30 * scale, baseY, 12 * scale, -38 * scale);
+  drawRect(ctx, cx - 55 * s, baseY, 20 * s, -55 * s);
+  drawRect(ctx, cx - 32 * s, baseY, 14 * s, -45 * s);
 
   // Soldiers and Sailors Monument (center) — column with figure on top
-  drawMonument(ctx, cx - 5 * scale, baseY, 10 * scale, 55 * scale);
+  drawMonument(ctx, cx - 6 * s, baseY, 12 * s, 65 * s);
 
   // OneAmerica Tower (pointed top) — right of center
-  drawOneAmerica(ctx, cx + 20 * scale, baseY, 18 * scale, 65 * scale);
+  drawOneAmerica(ctx, cx + 22 * s, baseY, 22 * s, 78 * s);
 
   // Salesforce Tower (tallest, rectangular) — prominent
-  drawRect(ctx, cx + 45 * scale, baseY, 22 * scale, -80 * scale);
+  drawRect(ctx, cx + 50 * s, baseY, 26 * s, -95 * s);
   // Antenna on top
-  drawRect(ctx, cx + 53 * scale, baseY - 80 * scale, 3 * scale, -10 * scale);
+  drawRect(ctx, cx + 60 * s, baseY - 95 * s, 4 * s, -14 * s);
 
   // Right side buildings
-  drawRect(ctx, cx + 75 * scale, baseY, 16 * scale, -50 * scale);
-  drawRect(ctx, cx + 95 * scale, baseY, 20 * scale, -36 * scale);
-  drawRect(ctx, cx + 120 * scale, baseY, 14 * scale, -28 * scale);
-  drawRect(ctx, cx + 140 * scale, baseY, 18 * scale, -20 * scale);
+  drawRect(ctx, cx + 82 * s, baseY, 20 * s, -58 * s);
+  drawRect(ctx, cx + 108 * s, baseY, 24 * s, -42 * s);
+  drawRect(ctx, cx + 136 * s, baseY, 16 * s, -32 * s);
+  drawRect(ctx, cx + 158 * s, baseY, 20 * s, -24 * s);
 }
 
 function drawRect(ctx, x, y, w, h) {
@@ -306,20 +303,20 @@ export class Scenery {
     const side = h2 > 0.5 ? 1 : -1; // left or right of road
 
     // Object position: just outside the rumble strip
-    const edgeOffset = 1.25; // multiplier of road width
+    const edgeOffset = 1.3; // multiplier of road width
     const objX = s2.x + side * s2.w * edgeOffset;
     const objY = s2.y;
 
-    // Scale object with perspective
-    const objSize = Math.max(4, s2.w * 0.06);
+    // Scale object with perspective — proportional to road width
+    const objSize = Math.max(6, s2.w * 0.25);
 
-    if (objSize < 3) return; // too small to see
+    if (objSize < 5) return; // too small to see
 
     if (isTree) {
       drawTree(ctx, objX, objY, objSize, season);
     } else {
-      const bldgW = objSize * 1.5;
-      const bldgH = objSize * (1 + h1 * 2);
+      const bldgW = objSize * 2;
+      const bldgH = objSize * (1.5 + h1 * 3);
       drawBuilding(ctx, objX, objY, bldgW, bldgH, season);
     }
   }
@@ -336,9 +333,9 @@ export class Scenery {
 
       // Place sign on the right side of the road
       const signX = width / 2 + roadW * 1.3;
-      const signScale = Math.min(1.5, roadW / 80);
+      const signScale = Math.min(3, roadW / 30);
 
-      if (signScale < 0.3 || screenY < 0 || screenY > height) continue;
+      if (signScale < 0.4 || screenY < 0 || screenY > height) continue;
 
       drawStreetSign(ctx, signX, screenY, sign.name, signScale);
     }
