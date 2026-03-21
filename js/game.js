@@ -184,11 +184,9 @@ class Game {
     if (this.nextStreetIndex < STREET_SIGNS.length &&
         this.miles >= STREET_SIGNS[this.nextStreetIndex].distance) {
       this.lastStreet = STREET_SIGNS[this.nextStreetIndex].name;
+      this.scenery.showStreetSign(this.lastStreet);
       this.nextStreetIndex++;
     }
-
-    // Scenery (street signs)
-    this.scenery.updateSigns(this.miles, this.position);
 
     // Obstacles
     this.obstacles.update(this.position, this.speed, this.miles);
@@ -235,9 +233,6 @@ class Game {
     // Road + scenery (skyline, roadside objects, snow)
     this.road.render(ctx, w, h, this.position, this.car.x, this.speed, this.miles, this.scenery);
 
-    // Street signs
-    this.scenery.renderStreetSigns(ctx, w, h, this.position);
-
     // Potholes
     this.obstacles.render(ctx, w, h, this.position);
 
@@ -246,6 +241,9 @@ class Game {
 
     // Weather overlay (rain in spring)
     this.scenery.renderWeather(ctx, w, h, this.road.getSeason(this.miles), this.animPhase);
+
+    // Street sign overlay (shows when passing a street)
+    this.scenery.renderStreetSign(ctx, w, h);
 
     if (shake.x || shake.y) {
       ctx.restore();

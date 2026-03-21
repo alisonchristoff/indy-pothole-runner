@@ -11,41 +11,39 @@ function drawSkyline(ctx, width, horizonY, season) {
                        season === 'FALL' ? '#2A3040' :
                        season === 'SPRING' ? '#2A3545' : '#1A2535';
 
-  const baseY = horizonY + 2; // sit just below horizon
-  const s = width / 420 * 2; // 2x scale for visibility
+  const baseY = horizonY + 2;
+  const s = width / 420; // original 1x scale
 
   ctx.fillStyle = skylineColor;
-
   const cx = width / 2;
 
-  // Far left buildings (small)
-  drawRect(ctx, cx - 180 * s, baseY, 22 * s, -40 * s);
-  drawRect(ctx, cx - 155 * s, baseY, 16 * s, -30 * s);
-  drawRect(ctx, cx - 135 * s, baseY, 24 * s, -50 * s);
+  // Far left buildings
+  drawRect(ctx, cx - 160 * s, baseY, 18 * s, -35 * s);
+  drawRect(ctx, cx - 138 * s, baseY, 14 * s, -25 * s);
+  drawRect(ctx, cx - 120 * s, baseY, 20 * s, -42 * s);
 
-  // Lucas Oil Stadium (wide, low arch) — left of center
-  drawLucasOil(ctx, cx - 100 * s, baseY, 60 * s, 35 * s);
+  // Lucas Oil Stadium
+  drawLucasOil(ctx, cx - 85 * s, baseY, 50 * s, 28 * s);
 
   // Mid-left buildings
-  drawRect(ctx, cx - 55 * s, baseY, 20 * s, -55 * s);
-  drawRect(ctx, cx - 32 * s, baseY, 14 * s, -45 * s);
+  drawRect(ctx, cx - 50 * s, baseY, 16 * s, -48 * s);
+  drawRect(ctx, cx - 30 * s, baseY, 12 * s, -38 * s);
 
-  // Soldiers and Sailors Monument (center) — column with figure on top
-  drawMonument(ctx, cx - 6 * s, baseY, 12 * s, 65 * s);
+  // Soldiers and Sailors Monument
+  drawMonument(ctx, cx - 5 * s, baseY, 10 * s, 55 * s);
 
-  // OneAmerica Tower (pointed top) — right of center
-  drawOneAmerica(ctx, cx + 22 * s, baseY, 22 * s, 78 * s);
+  // OneAmerica Tower
+  drawOneAmerica(ctx, cx + 20 * s, baseY, 18 * s, 65 * s);
 
-  // Salesforce Tower (tallest, rectangular) — prominent
-  drawRect(ctx, cx + 50 * s, baseY, 26 * s, -95 * s);
-  // Antenna on top
-  drawRect(ctx, cx + 60 * s, baseY - 95 * s, 4 * s, -14 * s);
+  // Salesforce Tower
+  drawRect(ctx, cx + 45 * s, baseY, 22 * s, -80 * s);
+  drawRect(ctx, cx + 53 * s, baseY - 80 * s, 3 * s, -10 * s);
 
   // Right side buildings
-  drawRect(ctx, cx + 82 * s, baseY, 20 * s, -58 * s);
-  drawRect(ctx, cx + 108 * s, baseY, 24 * s, -42 * s);
-  drawRect(ctx, cx + 136 * s, baseY, 16 * s, -32 * s);
-  drawRect(ctx, cx + 158 * s, baseY, 20 * s, -24 * s);
+  drawRect(ctx, cx + 75 * s, baseY, 16 * s, -50 * s);
+  drawRect(ctx, cx + 95 * s, baseY, 20 * s, -36 * s);
+  drawRect(ctx, cx + 120 * s, baseY, 14 * s, -28 * s);
+  drawRect(ctx, cx + 140 * s, baseY, 18 * s, -20 * s);
 }
 
 function drawRect(ctx, x, y, w, h) {
@@ -53,11 +51,9 @@ function drawRect(ctx, x, y, w, h) {
 }
 
 function drawLucasOil(ctx, x, baseY, w, h) {
-  // Wide building with arched roof
   ctx.beginPath();
   ctx.moveTo(x, baseY);
   ctx.lineTo(x, baseY - h * 0.6);
-  // Arch
   ctx.quadraticCurveTo(x + w / 2, baseY - h, x + w, baseY - h * 0.6);
   ctx.lineTo(x + w, baseY);
   ctx.closePath();
@@ -65,7 +61,6 @@ function drawLucasOil(ctx, x, baseY, w, h) {
 }
 
 function drawMonument(ctx, x, baseY, w, h) {
-  // Tapered column
   ctx.beginPath();
   ctx.moveTo(x, baseY);
   ctx.lineTo(x + w, baseY);
@@ -73,7 +68,6 @@ function drawMonument(ctx, x, baseY, w, h) {
   ctx.lineTo(x + w * 0.3, baseY - h);
   ctx.closePath();
   ctx.fill();
-  // Statue on top (small triangle)
   ctx.beginPath();
   ctx.moveTo(x + w * 0.5, baseY - h - 8);
   ctx.lineTo(x + w * 0.3, baseY - h);
@@ -83,12 +77,11 @@ function drawMonument(ctx, x, baseY, w, h) {
 }
 
 function drawOneAmerica(ctx, x, baseY, w, h) {
-  // Rectangular with pointed top
   ctx.beginPath();
   ctx.moveTo(x, baseY);
   ctx.lineTo(x + w, baseY);
   ctx.lineTo(x + w, baseY - h * 0.85);
-  ctx.lineTo(x + w / 2, baseY - h); // point
+  ctx.lineTo(x + w / 2, baseY - h);
   ctx.lineTo(x, baseY - h * 0.85);
   ctx.closePath();
   ctx.fill();
@@ -100,13 +93,10 @@ function drawTree(ctx, x, baseY, size, season) {
   const trunkW = size * 0.15;
   const trunkH = size * 0.4;
 
-  // Trunk
   ctx.fillStyle = '#5C3D2E';
   ctx.fillRect(x - trunkW / 2, baseY - trunkH, trunkW, trunkH);
 
-  // Foliage (varies by season)
   if (season === 'WINTER') {
-    // Bare branches — just draw a few lines
     ctx.strokeStyle = '#5C3D2E';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -117,6 +107,11 @@ function drawTree(ctx, x, baseY, size, season) {
     ctx.moveTo(x, baseY - trunkH * 0.7);
     ctx.lineTo(x - size * 0.2, baseY - trunkH - size * 0.15);
     ctx.stroke();
+    // Snow at base
+    ctx.fillStyle = 'rgba(220,230,240,0.6)';
+    ctx.beginPath();
+    ctx.ellipse(x, baseY, size * 0.2, size * 0.06, 0, 0, Math.PI * 2);
+    ctx.fill();
   } else {
     const foliageColor = season === 'FALL' ? '#C4762B' :
                          season === 'SPRING' ? '#3D8B37' : '#2D7B27';
@@ -125,7 +120,6 @@ function drawTree(ctx, x, baseY, size, season) {
     ctx.arc(x, baseY - trunkH - size * 0.25, size * 0.35, 0, Math.PI * 2);
     ctx.fill();
 
-    // Second smaller circle for fullness
     const foliageColor2 = season === 'FALL' ? '#D4863B' :
                           season === 'SPRING' ? '#4D9B47' : '#3D8B37';
     ctx.fillStyle = foliageColor2;
@@ -133,25 +127,15 @@ function drawTree(ctx, x, baseY, size, season) {
     ctx.arc(x + size * 0.15, baseY - trunkH - size * 0.15, size * 0.25, 0, Math.PI * 2);
     ctx.fill();
   }
-
-  // Snow caps in winter
-  if (season === 'WINTER') {
-    ctx.fillStyle = 'rgba(220,230,240,0.6)';
-    ctx.beginPath();
-    ctx.ellipse(x, baseY - trunkH, size * 0.15, size * 0.05, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
 }
 
 // ---- Roadside Building ----
 
 function drawBuilding(ctx, x, baseY, w, h, season) {
-  // Building body
   const bodyColors = ['#6B5B5B', '#5B6B6B', '#7B6B5B', '#5B5B6B', '#6B6B5B'];
   ctx.fillStyle = bodyColors[Math.floor(Math.abs(x * 7)) % bodyColors.length];
   ctx.fillRect(x - w / 2, baseY - h, w, h);
 
-  // Windows (fixed 3x3 grid so rows don't change with perspective)
   const winColor = season === 'WINTER' || season === 'FALL' ? '#FFE88B' : '#AAD4E8';
   ctx.fillStyle = winColor;
   const cols = 3;
@@ -165,37 +149,6 @@ function drawBuilding(ctx, x, baseY, w, h, season) {
       ctx.fillRect(wx, wy, winW, winH);
     }
   }
-}
-
-// ---- Street Sign ----
-
-function drawStreetSign(ctx, x, baseY, signName, scale) {
-  if (!signName) return;
-
-  const postH = 40 * scale;
-  const signW = Math.max(70, signName.length * 7) * scale;
-  const signH = 18 * scale;
-
-  // Post
-  ctx.fillStyle = COLORS.SIGN_POST;
-  ctx.fillRect(x - 1.5 * scale, baseY - postH, 3 * scale, postH);
-
-  // Sign background
-  ctx.fillStyle = COLORS.SIGN_BG;
-  const signX = x - signW / 2;
-  const signY = baseY - postH - signH;
-  ctx.fillRect(signX, signY, signW, signH);
-
-  // White border
-  ctx.strokeStyle = '#FFFFFF';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(signX + 1, signY + 1, signW - 2, signH - 2);
-
-  // Text
-  ctx.fillStyle = COLORS.SIGN_TEXT;
-  ctx.font = `bold ${10 * scale}px system-ui, -apple-system, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText(signName, x, signY + signH * 0.72);
 }
 
 // ---- Rain Effect ----
@@ -216,12 +169,10 @@ function drawRain(ctx, width, height, phase) {
 // ---- Snow on road edges ----
 
 function drawSnowEdges(ctx, s1, s2) {
-  // White strips along road edges
   ctx.fillStyle = 'rgba(220,230,240,0.5)';
   const snowW1 = s1.w * 0.08;
   const snowW2 = s2.w * 0.08;
 
-  // Left snow
   ctx.beginPath();
   ctx.moveTo(s1.x - s1.w * 1.15, s1.y);
   ctx.lineTo(s1.x - s1.w * 1.15 - snowW1, s1.y);
@@ -230,7 +181,6 @@ function drawSnowEdges(ctx, s1, s2) {
   ctx.closePath();
   ctx.fill();
 
-  // Right snow
   ctx.beginPath();
   ctx.moveTo(s1.x + s1.w * 1.15, s1.y);
   ctx.lineTo(s1.x + s1.w * 1.15 + snowW1, s1.y);
@@ -246,44 +196,26 @@ function drawSnowEdges(ctx, s1, s2) {
 
 export class Scenery {
   constructor() {
-    // Pre-generate roadside object positions (deterministic by segment index)
-    // Using a simple hash so objects stay in consistent positions
-    this.signQueue = []; // active street signs on screen
+    this.signQueue = [];
+    this.activeSign = null; // currently displayed street sign overlay
+    this.signTimer = 0;
   }
 
   reset() {
     this.signQueue = [];
+    this.activeSign = null;
+    this.signTimer = 0;
   }
 
-  // Get a deterministic pseudo-random value for a segment index
   hash(n) {
     const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
     return x - Math.floor(x);
   }
 
-  getSeason(miles) {
-    if (miles >= SEASONS.SPRING.start) return 'SPRING';
-    if (miles >= SEASONS.WINTER.start) return 'WINTER';
-    if (miles >= SEASONS.FALL.start) return 'FALL';
-    return 'SUMMER';
-  }
-
-  // Update street sign queue based on miles
-  updateSigns(miles, position) {
-    // Add signs that should now be visible
-    for (const sign of STREET_SIGNS) {
-      const alreadyQueued = this.signQueue.some(s => s.name === sign.name);
-      if (!alreadyQueued && miles >= sign.distance - 0.05) {
-        // Place sign at a world Z position ahead
-        this.signQueue.push({
-          name: sign.name,
-          z: position + 800,
-          shown: false,
-        });
-      }
-    }
-    // Remove signs well behind the camera
-    this.signQueue = this.signQueue.filter(s => s.z > position - 1000);
+  // Called when HUD street name changes — show the sign overlay
+  showStreetSign(name) {
+    this.activeSign = name;
+    this.signTimer = 180; // ~3 seconds at 60fps
   }
 
   renderSkyline(ctx, width, height, season) {
@@ -291,59 +223,79 @@ export class Scenery {
     drawSkyline(ctx, width, horizonY, season);
   }
 
-  // Render roadside objects for a road segment pair
   renderRoadsideForSegment(ctx, s1, s2, segIndex, width, height, season) {
     const h1 = this.hash(segIndex);
     const h2 = this.hash(segIndex + 1000);
 
-    // Only place objects on ~30% of segments to avoid clutter
-    if (h1 > 0.3) return;
+    // Only place objects on ~25% of segments
+    if (h1 > 0.25) return;
 
     const isTree = h2 > 0.4;
-    const side = h2 > 0.5 ? 1 : -1; // left or right of road
+    const side = h2 > 0.5 ? 1 : -1;
 
-    // Object position: just outside the rumble strip
-    const edgeOffset = 1.35;
-    const objX = s2.x + side * s2.w * edgeOffset;
+    // Position objects at the screen edge, not relative to road width
+    // (road is wider than screen at near segments)
+    const horizonY = height * 0.4;
+    const progress = (s2.y - horizonY) / (height - horizonY);
+
+    // Objects sit at screen edges, lerping inward toward horizon
+    // At progress=0 (horizon): near center. At progress=1 (bottom): at screen edge
+    const edgeX = side > 0
+      ? width * (0.55 + progress * 0.4)  // right side: 55% to 95%
+      : width * (0.45 - progress * 0.4); // left side: 45% to 5%
+
     const objY = s2.y;
 
-    // Scale object with perspective — proportional to road width
-    const objSize = Math.max(8, s2.w * 0.5);
+    // Size based on vertical position (perspective)
+    const objSize = Math.max(6, progress * 60);
 
-    if (objSize < 6) return; // too small to see
+    if (objSize < 5 || progress < 0.02 || progress > 0.85) return;
 
     if (isTree) {
-      drawTree(ctx, objX, objY, objSize, season);
+      drawTree(ctx, edgeX, objY, objSize, season);
     } else {
-      const bldgW = objSize * 2.5;
-      const bldgH = objSize * (2 + h1 * 4);
-      drawBuilding(ctx, objX, objY, bldgW, bldgH, season);
+      const bldgW = objSize * 1.8;
+      const bldgH = objSize * (1.5 + h1 * 2.5);
+      drawBuilding(ctx, edgeX, objY, bldgW, bldgH, season);
     }
   }
 
-  renderStreetSigns(ctx, width, height, position) {
-    for (const sign of this.signQueue) {
-      const dz = sign.z - position;
-      if (dz <= 0 || dz > 5000) continue;
+  // Render street sign as a HUD-style overlay on the right side
+  renderStreetSign(ctx, width, height) {
+    if (!this.activeSign || this.signTimer <= 0) return;
 
-      const scale = ROAD.CAMERA_DEPTH / dz;
-      const horizonY = height * 0.4;
-      const screenY = horizonY + scale * ROAD.CAMERA_HEIGHT * height;
+    this.signTimer--;
 
-      // How far from horizon to bottom (0=horizon, 1=bottom of screen)
-      const progress = (screenY - horizonY) / (height - horizonY);
+    const scale = width / 420;
+    const alpha = this.signTimer < 30 ? this.signTimer / 30 : 1;
 
-      // Place sign on right side of screen, sliding in from edge
-      // At horizon it's at screen edge, at bottom it's further right (off screen)
-      const signX = width * 0.78 + progress * width * 0.1;
+    ctx.globalAlpha = alpha;
 
-      // Scale with perspective — bigger as it gets closer
-      const signScale = Math.max(0.5, progress * 2.5) * (width / 420);
+    const signW = Math.max(120, this.activeSign.length * 10 + 30) * scale;
+    const signH = 30 * scale;
+    const signX = width - signW - 12 * scale;
+    const signY = height * 0.15;
 
-      if (progress < 0.05 || progress > 0.95) continue;
+    // Green sign background
+    ctx.fillStyle = COLORS.SIGN_BG;
+    ctx.beginPath();
+    ctx.roundRect(signX, signY, signW, signH, 4 * scale);
+    ctx.fill();
 
-      drawStreetSign(ctx, signX, screenY, sign.name, signScale);
-    }
+    // White border
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2 * scale;
+    ctx.beginPath();
+    ctx.roundRect(signX + 2, signY + 2, signW - 4, signH - 4, 3 * scale);
+    ctx.stroke();
+
+    // Text
+    ctx.fillStyle = COLORS.SIGN_TEXT;
+    ctx.font = `bold ${14 * scale}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(this.activeSign, signX + signW / 2, signY + signH * 0.68);
+
+    ctx.globalAlpha = 1;
   }
 
   renderWeather(ctx, width, height, season, phase) {
