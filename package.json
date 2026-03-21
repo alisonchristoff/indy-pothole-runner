@@ -1,0 +1,6 @@
+{
+  "name": "indy-pothole-runner",
+  "version": "1.0.0",
+  "description": "Survive the streets of Indianapolis - a mobile-first pothole dodging game",
+  "private": true
+}
