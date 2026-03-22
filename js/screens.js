@@ -260,7 +260,7 @@ export class Screens {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 28px system-ui, -apple-system, sans-serif';
-    ctx.fillText('INDY POTHOLE RUNNER', w / 2, 45);
+    ctx.fillText('AVOID INDY POTHOLES', w / 2, 45);
 
     // Rating
     const rating = this.getRating(miles);

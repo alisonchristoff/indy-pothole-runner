@@ -177,7 +177,7 @@ class Game {
     scoreCard.toBlob((blob) => {
       if (blob && navigator.share && navigator.canShare) {
         const file = new File([blob], 'indy-pothole-score.png', { type: 'image/png' });
-        const shareData = { title: 'Indy Pothole Runner', text, url, files: [file] };
+        const shareData = { title: 'Avoid Indy Potholes', text, url, files: [file] };
 
         if (navigator.canShare(shareData)) {
           navigator.share(shareData).catch(() => {
@@ -193,7 +193,7 @@ class Game {
 
   shareText(text, url) {
     if (navigator.share) {
-      navigator.share({ title: 'Indy Pothole Runner', text, url }).catch(() => {});
+      navigator.share({ title: 'Avoid Indy Potholes', text, url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(text + ' ' + url).then(() => {
         this.hud.message = 'Copied to clipboard!';
