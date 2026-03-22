@@ -248,7 +248,7 @@ export class Scenery {
 
     if (h1 > 0.25) return;
 
-    const isTree = h2 > 0.4;
+    const isTree = h2 > 0.35; // 65% trees, 35% buildings
     const side = h3 > 0.5 ? 1 : -1;
 
     // Road edge on screen = road center (s2.x) ± rumble width (s2.w * 1.15)
