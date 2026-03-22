@@ -153,6 +153,11 @@ class Game {
     this.lastStreet = STREET_SIGNS[0].name;
     this.nextStreetIndex = 1;
     this.currentSeason = 'SUMMER';
+    // Spawn first landmark
+    const first = STREET_SIGNS[0];
+    if (first.landmark) {
+      this.scenery.showLandmark(first.landmark, first.landmarkLabel, first.side, 0);
+    }
     this.car.reset();
     this.obstacles.reset();
     this.scenery.reset();
@@ -230,8 +235,12 @@ class Game {
     // Street signs
     if (this.nextStreetIndex < STREET_SIGNS.length &&
         this.miles >= STREET_SIGNS[this.nextStreetIndex].distance) {
-      this.lastStreet = STREET_SIGNS[this.nextStreetIndex].name;
+      const street = STREET_SIGNS[this.nextStreetIndex];
+      this.lastStreet = street.name;
       this.scenery.showStreetSign(this.lastStreet, this.position);
+      if (street.landmark) {
+        this.scenery.showLandmark(street.landmark, street.landmarkLabel, street.side, this.position);
+      }
       this.audio.playWhoosh();
       this.nextStreetIndex++;
     }
@@ -286,7 +295,8 @@ class Game {
     // Road + scenery (skyline, roadside objects, snow)
     this.road.render(ctx, w, h, this.position, this.car.x, this.speed, this.miles, this.scenery);
 
-    // Street signs (3D, on posts by the road)
+    // Street signs and landmarks (3D, by the road)
+    this.scenery.renderLandmarks(ctx, w, h, this.position);
     this.scenery.renderStreetSigns(ctx, w, h, this.position);
 
     // Potholes

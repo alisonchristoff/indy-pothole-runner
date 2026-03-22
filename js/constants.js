@@ -91,18 +91,18 @@ export const DAMAGE_TIERS = [
 ];
 
 export const STREET_SIGNS = [
-  { distance: 0.0, name: 'Washington St' },
-  { distance: 0.3, name: 'New York St' },
-  { distance: 0.7, name: '16th St' },
-  { distance: 1.2, name: 'Fall Creek Pkwy' },
-  { distance: 1.8, name: '38th St' },
-  { distance: 2.3, name: '46th St' },
-  { distance: 2.8, name: '56th St & College Ave' },
-  { distance: 3.3, name: 'Broad Ripple Ave' },
-  { distance: 3.9, name: '71st St' },
-  { distance: 4.5, name: '86th St' },
-  { distance: 5.2, name: '96th St' },
-  { distance: 6.0, name: '116th St' },
+  { distance: 0.0, name: 'Washington St', landmark: 'statehouse', landmarkLabel: 'State Capitol', side: -1 },
+  { distance: 0.3, name: 'New York St', landmark: 'fieldhouse', landmarkLabel: 'Gainbridge Fieldhouse', side: 1 },
+  { distance: 0.7, name: '16th St', landmark: 'speedway', landmarkLabel: 'IMS', side: -1 },
+  { distance: 1.2, name: 'Fall Creek Pkwy', landmark: 'museum', landmarkLabel: 'Newfields', side: 1 },
+  { distance: 1.8, name: '38th St', landmark: 'cemetery', landmarkLabel: 'Crown Hill', side: -1 },
+  { distance: 2.3, name: '46th St', landmark: 'university', landmarkLabel: 'Butler Univ.', side: 1 },
+  { distance: 2.8, name: '56th St & College Ave', landmark: 'church', landmarkLabel: 'St. Luke\'s', side: -1 },
+  { distance: 3.3, name: 'Broad Ripple Ave', landmark: 'broadripple', landmarkLabel: 'Broad Ripple', side: 1 },
+  { distance: 3.9, name: '71st St', landmark: 'stripmall', landmarkLabel: 'Nora Plaza', side: -1 },
+  { distance: 4.5, name: '86th St', landmark: 'bigbox', landmarkLabel: 'Castleton Mall', side: 1 },
+  { distance: 5.2, name: '96th St', landmark: 'office', landmarkLabel: 'Keystone Crossing', side: -1 },
+  { distance: 6.0, name: '116th St', landmark: 'arts', landmarkLabel: 'Palladium', side: 1 },
 ];
 
 export const COLORS = {

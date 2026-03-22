@@ -169,6 +169,263 @@ function drawStreetSign3D(ctx, x, baseY, signName, size) {
   ctx.fillText(signName, x, signY + signH * 0.72);
 }
 
+// ---- Landmarks ----
+// Each draws a recognizable silhouette at (x, baseY) with given size
+
+function drawLandmark(ctx, type, x, baseY, size, label) {
+  const s = size;
+  const drawLabel = (text) => {
+    if (s < 6) return;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `bold ${Math.max(5, s * 0.35)}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(text, x, baseY + s * 0.25);
+  };
+
+  switch (type) {
+    case 'statehouse': // Indiana State Capitol — dome building
+      ctx.fillStyle = '#C8B898';
+      ctx.fillRect(x - s * 0.6, baseY - s * 0.5, s * 1.2, s * 0.5);
+      ctx.fillStyle = '#B0A080';
+      ctx.beginPath();
+      ctx.arc(x, baseY - s * 0.5, s * 0.4, Math.PI, 0);
+      ctx.fill();
+      ctx.fillStyle = '#A09070';
+      ctx.fillRect(x - s * 0.05, baseY - s * 1.0, s * 0.1, s * 0.2);
+      // Columns
+      ctx.fillStyle = '#D0C8B0';
+      for (let i = -2; i <= 2; i++) {
+        ctx.fillRect(x + i * s * 0.2 - s * 0.03, baseY - s * 0.5, s * 0.06, s * 0.5);
+      }
+      drawLabel(label);
+      break;
+
+    case 'fieldhouse': // Arena — big boxy with curved roof
+      ctx.fillStyle = '#5A6A7A';
+      ctx.fillRect(x - s * 0.7, baseY - s * 0.6, s * 1.4, s * 0.6);
+      ctx.fillStyle = '#4A5A6A';
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.7, baseY - s * 0.6);
+      ctx.quadraticCurveTo(x, baseY - s * 0.9, x + s * 0.7, baseY - s * 0.6);
+      ctx.fill();
+      // Entrance
+      ctx.fillStyle = '#FFE88B';
+      ctx.fillRect(x - s * 0.15, baseY - s * 0.25, s * 0.3, s * 0.25);
+      drawLabel(label);
+      break;
+
+    case 'speedway': // IMS — pagoda tower + grandstand
+      // Grandstand
+      ctx.fillStyle = '#8A8A8A';
+      ctx.fillRect(x - s * 0.8, baseY - s * 0.3, s * 1.6, s * 0.3);
+      // Pagoda tower
+      ctx.fillStyle = '#F5F0E0';
+      const pW = s * 0.2;
+      for (let i = 0; i < 3; i++) {
+        const tier = i;
+        const tw = pW - tier * s * 0.04;
+        const ty = baseY - s * 0.3 - tier * s * 0.25;
+        ctx.fillRect(x - tw / 2, ty - s * 0.25, tw, s * 0.25);
+        ctx.fillStyle = '#D0C8B0';
+        ctx.fillRect(x - tw / 2 - s * 0.02, ty - s * 0.25, tw + s * 0.04, s * 0.03);
+        ctx.fillStyle = '#F5F0E0';
+      }
+      // Flag
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(x, baseY - s * 1.1, s * 0.02, s * 0.15);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(x + s * 0.02, baseY - s * 1.1, s * 0.08, s * 0.06);
+      // Checkered pattern
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(x + s * 0.02, baseY - s * 1.1, s * 0.04, s * 0.03);
+      ctx.fillRect(x + s * 0.06, baseY - s * 1.07, s * 0.04, s * 0.03);
+      drawLabel(label);
+      break;
+
+    case 'museum': // Newfields/IMA — Love sculpture + building
+      ctx.fillStyle = '#E8E0D0';
+      ctx.fillRect(x - s * 0.5, baseY - s * 0.5, s * 1.0, s * 0.5);
+      // Entrance arch
+      ctx.fillStyle = '#C8B898';
+      ctx.beginPath();
+      ctx.arc(x, baseY - s * 0.5, s * 0.2, Math.PI, 0);
+      ctx.fill();
+      // LOVE text (simplified)
+      ctx.fillStyle = '#CC3333';
+      ctx.font = `bold ${Math.max(5, s * 0.3)}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('LOVE', x + s * 0.5, baseY - s * 0.1);
+      drawLabel(label);
+      break;
+
+    case 'cemetery': // Crown Hill — gate + headstones + hill
+      // Hill
+      ctx.fillStyle = '#4A6A3A';
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.8, baseY);
+      ctx.quadraticCurveTo(x, baseY - s * 0.5, x + s * 0.8, baseY);
+      ctx.fill();
+      // Gate
+      ctx.fillStyle = '#555555';
+      ctx.fillRect(x - s * 0.3, baseY - s * 0.45, s * 0.05, s * 0.45);
+      ctx.fillRect(x + s * 0.25, baseY - s * 0.45, s * 0.05, s * 0.45);
+      ctx.beginPath();
+      ctx.arc(x, baseY - s * 0.45, s * 0.3, Math.PI, 0);
+      ctx.stroke();
+      // Headstones
+      ctx.fillStyle = '#AAAAAA';
+      for (const ox of [-0.15, 0.1, 0.3]) {
+        ctx.fillRect(x + ox * s - s * 0.03, baseY - s * 0.2 - Math.abs(ox) * s * 0.3, s * 0.06, s * 0.12);
+      }
+      drawLabel(label);
+      break;
+
+    case 'university': // Butler — Hinkle Fieldhouse shape
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(x - s * 0.6, baseY - s * 0.5, s * 1.2, s * 0.5);
+      // Arched roof
+      ctx.fillStyle = '#6B3510';
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.6, baseY - s * 0.5);
+      ctx.quadraticCurveTo(x, baseY - s * 0.8, x + s * 0.6, baseY - s * 0.5);
+      ctx.fill();
+      // Windows
+      ctx.fillStyle = '#FFE88B';
+      for (let i = -2; i <= 2; i++) {
+        ctx.fillRect(x + i * s * 0.2 - s * 0.05, baseY - s * 0.35, s * 0.08, s * 0.12);
+      }
+      drawLabel(label);
+      break;
+
+    case 'church': // Church with steeple
+      ctx.fillStyle = '#D4C4A8';
+      ctx.fillRect(x - s * 0.4, baseY - s * 0.5, s * 0.8, s * 0.5);
+      // Steeple
+      ctx.fillStyle = '#B0A090';
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.1, baseY - s * 0.5);
+      ctx.lineTo(x, baseY - s * 1.0);
+      ctx.lineTo(x + s * 0.1, baseY - s * 0.5);
+      ctx.fill();
+      // Cross
+      ctx.strokeStyle = '#888';
+      ctx.lineWidth = Math.max(1, s * 0.04);
+      ctx.beginPath();
+      ctx.moveTo(x, baseY - s * 1.0);
+      ctx.lineTo(x, baseY - s * 1.15);
+      ctx.moveTo(x - s * 0.06, baseY - s * 1.08);
+      ctx.lineTo(x + s * 0.06, baseY - s * 1.08);
+      ctx.stroke();
+      // Window
+      ctx.fillStyle = '#88AACC';
+      ctx.beginPath();
+      ctx.arc(x, baseY - s * 0.3, s * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+      drawLabel(label);
+      break;
+
+    case 'broadripple': // Broad Ripple — colorful storefronts
+      const colors = ['#CC5544', '#44AA77', '#4477BB', '#CC8833'];
+      const shopW = s * 0.4;
+      for (let i = 0; i < 4; i++) {
+        const sx = x - s * 0.8 + i * shopW;
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(sx, baseY - s * 0.4, shopW - s * 0.02, s * 0.4);
+        // Awning
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.moveTo(sx, baseY - s * 0.4);
+        ctx.lineTo(sx + shopW - s * 0.02, baseY - s * 0.4);
+        ctx.lineTo(sx + shopW - s * 0.02, baseY - s * 0.33);
+        ctx.lineTo(sx, baseY - s * 0.33);
+        ctx.fill();
+        // Door
+        ctx.fillStyle = '#FFE88B';
+        ctx.fillRect(sx + shopW * 0.3, baseY - s * 0.2, shopW * 0.35, s * 0.2);
+      }
+      drawLabel(label);
+      break;
+
+    case 'stripmall': // Nora strip mall
+      ctx.fillStyle = '#B0A898';
+      ctx.fillRect(x - s * 0.7, baseY - s * 0.35, s * 1.4, s * 0.35);
+      // Storefront signs
+      const signColors = ['#CC3333', '#3366CC', '#33AA55'];
+      for (let i = 0; i < 3; i++) {
+        const sx = x - s * 0.55 + i * s * 0.4;
+        ctx.fillStyle = signColors[i];
+        ctx.fillRect(sx, baseY - s * 0.35, s * 0.3, s * 0.06);
+        ctx.fillStyle = '#FFE88B';
+        ctx.fillRect(sx + s * 0.05, baseY - s * 0.2, s * 0.08, s * 0.15);
+        ctx.fillRect(sx + s * 0.17, baseY - s * 0.2, s * 0.08, s * 0.15);
+      }
+      // Parking lot
+      ctx.fillStyle = '#444';
+      ctx.fillRect(x - s * 0.5, baseY, s * 1.0, s * 0.08);
+      drawLabel(label);
+      break;
+
+    case 'bigbox': // Castleton Mall — big flat building
+      ctx.fillStyle = '#8A8A8A';
+      ctx.fillRect(x - s * 0.8, baseY - s * 0.4, s * 1.6, s * 0.4);
+      // Big sign
+      ctx.fillStyle = '#DDDDDD';
+      ctx.fillRect(x - s * 0.3, baseY - s * 0.38, s * 0.6, s * 0.1);
+      // Entrance
+      ctx.fillStyle = '#FFE88B';
+      ctx.fillRect(x - s * 0.12, baseY - s * 0.2, s * 0.24, s * 0.2);
+      // Parking lot lines
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 1;
+      for (let i = -3; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x + i * s * 0.12, baseY);
+        ctx.lineTo(x + i * s * 0.12, baseY + s * 0.06);
+        ctx.stroke();
+      }
+      drawLabel(label);
+      break;
+
+    case 'office': // Keystone at the Crossing — glass office tower
+      ctx.fillStyle = '#6688AA';
+      ctx.fillRect(x - s * 0.25, baseY - s * 0.9, s * 0.5, s * 0.9);
+      // Glass panels
+      ctx.strokeStyle = '#88AACC';
+      ctx.lineWidth = 1;
+      for (let r = 0; r < 6; r++) {
+        const gy = baseY - s * 0.85 + r * s * 0.14;
+        ctx.beginPath();
+        ctx.moveTo(x - s * 0.25, gy);
+        ctx.lineTo(x + s * 0.25, gy);
+        ctx.stroke();
+      }
+      // Second shorter tower
+      ctx.fillStyle = '#5577AA';
+      ctx.fillRect(x + s * 0.3, baseY - s * 0.55, s * 0.3, s * 0.55);
+      drawLabel(label);
+      break;
+
+    case 'arts': // Palladium — concert hall with columns
+      ctx.fillStyle = '#E8DDD0';
+      ctx.fillRect(x - s * 0.5, baseY - s * 0.6, s * 1.0, s * 0.6);
+      // Dome
+      ctx.fillStyle = '#D0C0A8';
+      ctx.beginPath();
+      ctx.arc(x, baseY - s * 0.6, s * 0.35, Math.PI, 0);
+      ctx.fill();
+      // Columns
+      ctx.fillStyle = '#F0E8D8';
+      for (let i = -2; i <= 2; i++) {
+        ctx.fillRect(x + i * s * 0.18 - s * 0.025, baseY - s * 0.6, s * 0.05, s * 0.6);
+      }
+      // Dome top
+      ctx.fillStyle = '#C0B098';
+      ctx.fillRect(x - s * 0.03, baseY - s * 0.95, s * 0.06, s * 0.1);
+      drawLabel(label);
+      break;
+  }
+}
+
 // ---- Rain Effect ----
 
 function drawRain(ctx, width, height, phase) {
@@ -214,11 +471,13 @@ function drawSnowEdges(ctx, s1, s2) {
 
 export class Scenery {
   constructor() {
-    this.activeStreetSigns = []; // signs placed in 3D world
+    this.activeStreetSigns = [];
+    this.activeLandmarks = [];
   }
 
   reset() {
     this.activeStreetSigns = [];
+    this.activeLandmarks = [];
   }
 
   hash(n) {
@@ -230,7 +489,17 @@ export class Scenery {
   showStreetSign(name, position) {
     this.activeStreetSigns.push({
       name,
-      z: position + 6000, // place it well ahead so player sees it approach
+      z: position + 6000,
+    });
+  }
+
+  // Place a landmark in the 3D world
+  showLandmark(type, label, side, position) {
+    this.activeLandmarks.push({
+      type,
+      label,
+      side, // -1 left, 1 right
+      z: position + 5000, // slightly before the street sign
     });
   }
 
@@ -306,6 +575,36 @@ export class Scenery {
       if (signSize < 3) continue;
 
       drawStreetSign3D(ctx, signX, screenY, sign.name, signSize);
+    }
+  }
+
+  // Render landmarks that you drive past
+  renderLandmarks(ctx, width, height, position) {
+    this.activeLandmarks = this.activeLandmarks.filter(l => l.z > position - 500);
+
+    for (const lm of this.activeLandmarks) {
+      const dz = lm.z - position;
+      if (dz <= 10 || dz > 8000) continue;
+
+      const scale = ROAD.CAMERA_DEPTH / dz;
+      const horizonY = height * 0.4;
+      const screenY = horizonY + scale * ROAD.CAMERA_HEIGHT * height;
+      const roadHalfW = scale * ROAD.ROAD_WIDTH * width / 2;
+
+      // Place on the specified side, just outside road edge
+      const roadEdge = width / 2 + lm.side * roadHalfW * 1.15;
+
+      // Skip if road edge is off screen
+      if (lm.side > 0 && roadEdge > width + 50) continue;
+      if (lm.side < 0 && roadEdge < -50) continue;
+
+      const lmX = roadEdge + lm.side * roadHalfW * 0.3;
+
+      // Size scales with perspective
+      const lmSize = Math.max(6, roadHalfW * 0.15);
+      if (lmSize < 4) continue;
+
+      drawLandmark(ctx, lm.type, lmX, screenY, lmSize, lm.label);
     }
   }
 
