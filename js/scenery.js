@@ -598,11 +598,11 @@ export class Scenery {
       if (lm.side > 0 && roadEdge > width + 50) continue;
       if (lm.side < 0 && roadEdge < -50) continue;
 
-      const lmX = roadEdge + lm.side * roadHalfW * 0.3;
+      const lmX = roadEdge + lm.side * roadHalfW * 0.4;
 
-      // Size scales with perspective
-      const lmSize = Math.max(6, roadHalfW * 0.15);
-      if (lmSize < 4) continue;
+      // Size scales with perspective — landmarks are big buildings
+      const lmSize = Math.max(8, roadHalfW * 0.6);
+      if (lmSize < 5) continue;
 
       drawLandmark(ctx, lm.type, lmX, screenY, lmSize, lm.label);
     }
