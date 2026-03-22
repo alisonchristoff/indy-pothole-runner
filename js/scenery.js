@@ -244,11 +244,12 @@ export class Scenery {
   renderRoadsideForSegment(ctx, s1, s2, segIndex, width, height, season) {
     const h1 = this.hash(segIndex);
     const h2 = this.hash(segIndex + 1000);
+    const h3 = this.hash(segIndex + 2000); // separate hash for side
 
     if (h1 > 0.25) return;
 
     const isTree = h2 > 0.4;
-    const side = h2 > 0.5 ? 1 : -1;
+    const side = h3 > 0.5 ? 1 : -1;
 
     // Road edge on screen = road center (s2.x) ± rumble width (s2.w * 1.15)
     const roadEdge = s2.x + side * s2.w * 1.15;

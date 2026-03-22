@@ -34,8 +34,8 @@ export const CAR = {
 export const POTHOLE = {
   SPAWN_RATE_INITIAL: 0.012,
   SPAWN_RATE_MAX: 0.10,
-  MIN_SIZE: 20,
-  MAX_SIZE: 70,
+  MIN_SIZE: 15,
+  MAX_SIZE: 120,
 };
 
 export const SEASONS = {
