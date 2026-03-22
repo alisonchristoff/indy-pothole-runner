@@ -175,11 +175,11 @@ function drawStreetSign3D(ctx, x, baseY, signName, size) {
 function drawLandmark(ctx, type, x, baseY, size, label) {
   const s = size;
   const drawLabel = (text) => {
-    if (s < 6) return;
+    if (s < 8) return;
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold ${Math.max(5, s * 0.35)}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `bold ${Math.max(5, Math.min(12, s * 0.15))}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText(text, x, baseY + s * 0.25);
+    ctx.fillText(text, x, baseY + s * 0.12);
   };
 
   switch (type) {
@@ -601,7 +601,7 @@ export class Scenery {
       const lmX = roadEdge + lm.side * roadHalfW * 0.4;
 
       // Size scales with perspective — landmarks are big buildings
-      const lmSize = Math.max(8, roadHalfW * 0.6);
+      const lmSize = Math.max(8, roadHalfW * 0.75);
       if (lmSize < 5) continue;
 
       drawLandmark(ctx, lm.type, lmX, screenY, lmSize, lm.label);
