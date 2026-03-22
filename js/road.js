@@ -67,12 +67,9 @@ export class Road {
 
     const baseSegIndex = Math.floor(position / this.segmentLength);
 
-    // Reduce draw distance on mobile for performance
-    const drawDist = width <= 500 ? Math.min(60, ROAD.DRAW_DISTANCE) : ROAD.DRAW_DISTANCE;
-
     // Camera stays centered on road
     const projected = [];
-    for (let n = 1; n <= drawDist; n++) {
+    for (let n = 1; n <= ROAD.DRAW_DISTANCE; n++) {
       const segIndex = baseSegIndex + n;
       const worldZ = segIndex * this.segmentLength;
 
@@ -133,7 +130,7 @@ export class Road {
 
       // Snow on road edges (winter)
       if (scenery) {
-        scenery.renderSnowForSegment(ctx, s1, s2, season, width <= 500);
+        scenery.renderSnowForSegment(ctx, s1, s2, season);
       }
 
       // Roadside objects (trees, buildings)
