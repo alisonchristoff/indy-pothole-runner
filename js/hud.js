@@ -2,7 +2,7 @@
 // HUD — Score, Damage Meter, Messages
 // ============================================================
 
-import { CAR, DAMAGE_MESSAGES, REPAIR_COSTS } from './constants.js';
+import { CAR } from './constants.js';
 
 export class HUD {
   constructor() {
@@ -22,7 +22,12 @@ export class HUD {
   }
 
   showDamageMessage(damageLevel) {
-    this.message = DAMAGE_MESSAGES[damageLevel - 1] || '';
+    this.messageTimer = 120;
+    this.shakeIntensity = 15;
+  }
+
+  showMessage(text) {
+    this.message = text;
     this.messageTimer = 120;
     this.shakeIntensity = 15;
   }

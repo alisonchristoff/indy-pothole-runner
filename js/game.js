@@ -2,7 +2,7 @@
 // Game — Main loop and state management
 // ============================================================
 
-import { GAME, CAR, REPAIR_COSTS, STREET_SIGNS, SEASONS } from './constants.js';
+import { GAME, CAR, DAMAGE_TIERS, STREET_SIGNS, SEASONS } from './constants.js';
 import { Road } from './road.js';
 import { Car } from './car.js';
 import { Input } from './input.js';
@@ -38,6 +38,7 @@ class Game {
     this.speed = 0;
     this.miles = 0;
     this.repairCost = 0;
+    this.damageLog = []; // { message, cost } for each hit
     this.lastStreet = '';
     this.nextStreetIndex = 0;
     this.currentSeason = 'SUMMER';
@@ -148,6 +149,7 @@ class Game {
     this.speed = GAME.INITIAL_SPEED;
     this.miles = 0;
     this.repairCost = 0;
+    this.damageLog = [];
     this.lastStreet = STREET_SIGNS[0].name;
     this.nextStreetIndex = 1;
     this.currentSeason = 'SUMMER';
@@ -242,8 +244,11 @@ class Game {
     if (hit) {
       this.car.hit();
       const dmg = this.car.damage;
-      this.repairCost += REPAIR_COSTS[dmg - 1] || 0;
-      this.hud.showDamageMessage(dmg);
+      const tier = DAMAGE_TIERS[dmg - 1] || DAMAGE_TIERS[DAMAGE_TIERS.length - 1];
+      const pick = tier[Math.floor(Math.random() * tier.length)];
+      this.repairCost += pick.cost;
+      this.damageLog.push(pick);
+      this.hud.showMessage(pick.message);
       this.audio.playHit();
 
       if (dmg >= CAR.MAX_DAMAGE) {
@@ -325,7 +330,7 @@ class Game {
     // Overlays
     if (this.state === STATES.GAME_OVER) {
       this.buttons.gameOver = this.screens.renderGameOver(
-        ctx, w, h, this.miles, this.car.damage, this.repairCost, this.lastStreet
+        ctx, w, h, this.miles, this.car.damage, this.repairCost, this.lastStreet, this.damageLog
       );
     } else if (this.state === STATES.PAUSED) {
       this.buttons.pause = this.screens.renderPause(

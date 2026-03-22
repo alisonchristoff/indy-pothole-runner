@@ -2,7 +2,7 @@
 // Screens — Title, Game Over, Pause
 // ============================================================
 
-import { DAMAGE_MESSAGES, REPAIR_COSTS } from './constants.js';
+// No fixed imports needed — damage data passed in dynamically
 
 export class Screens {
   constructor(canvas) {
@@ -122,7 +122,7 @@ export class Screens {
     return { btnX, btnY, btnW, btnH };
   }
 
-  renderGameOver(ctx, width, height, miles, damage, repairCost, lastStreet) {
+  renderGameOver(ctx, width, height, miles, damage, repairCost, lastStreet, damageLog) {
     // Dim overlay
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
     ctx.fillRect(0, 0, width, height);
@@ -168,12 +168,13 @@ export class Screens {
     ctx.fillText('Damage report:', reportX, reportY);
     reportY += 24 * scale;
 
-    for (let i = 0; i < damage; i++) {
+    const log = damageLog || [];
+    for (let i = 0; i < log.length; i++) {
       ctx.fillStyle = '#FF8888';
-      ctx.fillText(`• ${DAMAGE_MESSAGES[i]}`, reportX + 10 * scale, reportY);
+      ctx.fillText(`• ${log[i].message}`, reportX + 10 * scale, reportY);
       ctx.fillStyle = '#AAAAAA';
       ctx.textAlign = 'right';
-      ctx.fillText(`+$${REPAIR_COSTS[i].toLocaleString()}`, width - reportX, reportY);
+      ctx.fillText(`+$${log[i].cost.toLocaleString()}`, width - reportX, reportY);
       ctx.textAlign = 'left';
       reportY += 22 * scale;
     }

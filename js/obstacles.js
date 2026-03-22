@@ -29,19 +29,21 @@ export class Obstacles {
 
     // Spawn new potholes ahead (close enough to reach player in a few seconds)
     if (Math.random() < spawnRate) {
-      // Weighted size distribution — mostly small/medium, occasionally huge
+      // Weighted size distribution — mostly small/medium, rare craters
       const r = Math.random();
-      const sizeFactor = r < 0.5 ? r * 2 * 0.4 :   // 50%: small (0-40% of range)
-                         r < 0.85 ? 0.4 + (r - 0.5) / 0.35 * 0.35 : // 35%: medium (40-75%)
-                         0.75 + (r - 0.85) / 0.15 * 0.25; // 15%: large (75-100%)
+      const sizeFactor = r < 0.4 ? r / 0.4 * 0.3 :         // 40%: small (0-30% of range)
+                         r < 0.75 ? 0.3 + (r - 0.4) / 0.35 * 0.35 : // 35%: medium (30-65%)
+                         r < 0.92 ? 0.65 + (r - 0.75) / 0.17 * 0.2 : // 17%: large (65-85%)
+                         0.85 + (r - 0.92) / 0.08 * 0.15;   // 8%: crater (85-100%)
       const size = POTHOLE.MIN_SIZE + sizeFactor * (POTHOLE.MAX_SIZE - POTHOLE.MIN_SIZE);
       const isWater = miles >= SEASONS.SPRING.start && Math.random() < 0.3;
 
-      // Generate jagged edge offsets (8-12 points around the rim)
+      // Generate jagged edge offsets — bigger potholes get more jagged
       const numPoints = 8 + Math.floor(Math.random() * 5);
+      const jagAmount = 0.3 + sizeFactor * 0.4; // more jagged for bigger holes
       const jagged = [];
       for (let i = 0; i < numPoints; i++) {
-        jagged.push(0.7 + Math.random() * 0.5); // radius multiplier 0.7-1.2
+        jagged.push(1 - jagAmount / 2 + Math.random() * jagAmount);
       }
 
       this.potholes.push({
