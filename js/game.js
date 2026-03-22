@@ -43,6 +43,7 @@ class Game {
     this.nextStreetIndex = 0;
     this.currentSeason = 'SUMMER';
     this.animPhase = 0;
+    this.gameOverTime = 0;
 
     // Button bounds for click detection
     this.buttons = {};
@@ -116,6 +117,8 @@ class Game {
         this.startGame();
       }
     } else if (this.state === STATES.GAME_OVER && this.buttons.gameOver) {
+      // Ignore taps for 800ms after game over to prevent accidental presses
+      if (performance.now() - this.gameOverTime < 800) return;
       const { driveBtn, shareBtn, creditBtn } = this.buttons.gameOver;
       if (this.hitTest(x, y, driveBtn)) {
         this.startGame();
@@ -267,6 +270,7 @@ class Game {
 
       if (dmg >= CAR.MAX_DAMAGE) {
         this.state = STATES.GAME_OVER;
+        this.gameOverTime = performance.now();
         this.audio.stopEngine();
         this.audio.playGameOver();
       }
