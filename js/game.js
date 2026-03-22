@@ -2,7 +2,7 @@
 // Game — Main loop and state management
 // ============================================================
 
-import { GAME, CAR, REPAIR_COSTS, STREET_SIGNS } from './constants.js';
+import { GAME, CAR, REPAIR_COSTS, STREET_SIGNS, SEASONS } from './constants.js';
 import { Road } from './road.js';
 import { Car } from './car.js';
 import { Input } from './input.js';
@@ -40,6 +40,7 @@ class Game {
     this.repairCost = 0;
     this.lastStreet = '';
     this.nextStreetIndex = 0;
+    this.currentSeason = 'SUMMER';
     this.animPhase = 0;
 
     // Button bounds for click detection
@@ -51,13 +52,21 @@ class Game {
     // Click/tap handling for menus
     this.canvas.addEventListener('click', (e) => this.handleClick(e));
     this.canvas.addEventListener('touchend', (e) => {
-      // Only handle taps on menu screens, not during gameplay
+      const touch = e.changedTouches[0];
       if (this.state !== STATES.PLAYING) {
-        const touch = e.changedTouches[0];
         this.handleClick({
           clientX: touch.clientX,
           clientY: touch.clientY,
         });
+      } else if (this.buttons.pauseBtn) {
+        // Check if tap is on the pause button during gameplay
+        const rect = this.canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        if (this.hitTest(x, y, this.buttons.pauseBtn)) {
+          this.state = STATES.PAUSED;
+          this.audio.stopEngine();
+        }
       }
     });
 
@@ -110,10 +119,17 @@ class Game {
       } else if (this.hitTest(x, y, shareBtn)) {
         this.share();
       }
+    } else if (this.state === STATES.PLAYING && this.buttons.pauseBtn) {
+      if (this.hitTest(x, y, this.buttons.pauseBtn)) {
+        this.state = STATES.PAUSED;
+        this.audio.stopEngine();
+        return;
+      }
     } else if (this.state === STATES.PAUSED && this.buttons.pause) {
       const { resumeBtn, quitBtn } = this.buttons.pause;
       if (this.hitTest(x, y, resumeBtn)) {
         this.state = STATES.PLAYING;
+        this.audio.startEngine();
       } else if (this.hitTest(x, y, quitBtn)) {
         this.state = STATES.TITLE;
       }
@@ -126,6 +142,7 @@ class Game {
 
   startGame() {
     this.audio.init();
+    this.audio.startEngine();
     this.state = STATES.PLAYING;
     this.position = 0;
     this.speed = GAME.INITIAL_SPEED;
@@ -133,6 +150,7 @@ class Game {
     this.repairCost = 0;
     this.lastStreet = STREET_SIGNS[0].name;
     this.nextStreetIndex = 1;
+    this.currentSeason = 'SUMMER';
     this.car.reset();
     this.obstacles.reset();
     this.scenery.reset();
@@ -140,17 +158,35 @@ class Game {
   }
 
   share() {
-    const text = `I survived ${this.miles.toFixed(1)} miles on Indianapolis roads and racked up $${this.repairCost.toLocaleString()} in repairs before my car died at ${this.lastStreet}. Think you can do better?`;
+    const rating = this.screens.getRating(this.miles);
+    const text = `${rating.title}! I survived ${this.miles.toFixed(1)} miles on Indianapolis roads and racked up $${this.repairCost.toLocaleString()} in repairs before my car died at ${this.lastStreet}. Think you can do better?`;
+    const url = window.location.href;
 
+    // Try sharing with image first
+    const scoreCard = this.screens.generateScoreCard(this.miles, this.car.damage, this.repairCost, this.lastStreet);
+
+    scoreCard.toBlob((blob) => {
+      if (blob && navigator.share && navigator.canShare) {
+        const file = new File([blob], 'indy-pothole-score.png', { type: 'image/png' });
+        const shareData = { title: 'Indy Pothole Runner', text, url, files: [file] };
+
+        if (navigator.canShare(shareData)) {
+          navigator.share(shareData).catch(() => {
+            // Fallback to text-only share
+            this.shareText(text, url);
+          });
+          return;
+        }
+      }
+      this.shareText(text, url);
+    }, 'image/png');
+  }
+
+  shareText(text, url) {
     if (navigator.share) {
-      navigator.share({
-        title: 'Indy Pothole Runner',
-        text,
-        url: window.location.href,
-      }).catch(() => {});
+      navigator.share({ title: 'Indy Pothole Runner', text, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(text + ' ' + window.location.href).then(() => {
-        // Brief visual feedback
+      navigator.clipboard.writeText(text + ' ' + url).then(() => {
         this.hud.message = 'Copied to clipboard!';
         this.hud.messageTimer = 90;
       }).catch(() => {});
@@ -164,6 +200,7 @@ class Game {
     if (this.input.isEscapePressed()) {
       this.input.consumeEscape();
       this.state = STATES.PAUSED;
+      this.audio.stopEngine();
       return;
     }
 
@@ -173,6 +210,7 @@ class Game {
 
     // Speed increases over time
     this.speed = Math.min(GAME.MAX_SPEED, this.speed + GAME.SPEED_INCREASE_RATE);
+    this.audio.updateEngineSpeed(this.speed);
 
     // Position advances (no track looping — infinite road)
     this.position += this.speed * this.road.segmentLength * 0.02;
@@ -180,11 +218,19 @@ class Game {
     // Miles
     this.miles = this.position * GAME.MILES_PER_UNIT;
 
+    // Season transitions
+    const newSeason = this.road.getSeason(this.miles);
+    if (newSeason !== this.currentSeason) {
+      this.currentSeason = newSeason;
+      this.hud.showSeasonChange(SEASONS[newSeason].label);
+    }
+
     // Street signs
     if (this.nextStreetIndex < STREET_SIGNS.length &&
         this.miles >= STREET_SIGNS[this.nextStreetIndex].distance) {
       this.lastStreet = STREET_SIGNS[this.nextStreetIndex].name;
       this.scenery.showStreetSign(this.lastStreet, this.position);
+      this.audio.playWhoosh();
       this.nextStreetIndex++;
     }
 
@@ -202,6 +248,7 @@ class Game {
 
       if (dmg >= CAR.MAX_DAMAGE) {
         this.state = STATES.GAME_OVER;
+        this.audio.stopEngine();
         this.audio.playGameOver();
       }
     }
@@ -255,10 +302,24 @@ class Game {
     // Pause button (top right area during gameplay)
     if (this.state === STATES.PLAYING) {
       const scale = w / 420;
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.font = `${20 * scale}px system-ui`;
-      ctx.textAlign = 'right';
-      ctx.fillText('⏸', w - 16 * scale, h * 0.07 + 50 * scale);
+      const pauseSize = 36 * scale;
+      const pauseX = w - 16 * scale - pauseSize;
+      const pauseY = h * 0.07 + 20 * scale;
+
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      ctx.roundRect(pauseX, pauseY, pauseSize, pauseSize, 6 * scale);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      const barW = 5 * scale;
+      const barH = 16 * scale;
+      const barY = pauseY + (pauseSize - barH) / 2;
+      ctx.fillRect(pauseX + pauseSize * 0.3 - barW / 2, barY, barW, barH);
+      ctx.fillRect(pauseX + pauseSize * 0.7 - barW / 2, barY, barW, barH);
+
+      // Store bounds for tap detection
+      this.buttons.pauseBtn = { x: pauseX, y: pauseY, w: pauseSize, h: pauseSize };
     }
 
     // Overlays

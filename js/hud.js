@@ -9,22 +9,32 @@ export class HUD {
     this.message = '';
     this.messageTimer = 0;
     this.shakeIntensity = 0;
+    this.seasonMessage = '';
+    this.seasonTimer = 0;
   }
 
   reset() {
     this.message = '';
     this.messageTimer = 0;
     this.shakeIntensity = 0;
+    this.seasonMessage = '';
+    this.seasonTimer = 0;
   }
 
   showDamageMessage(damageLevel) {
     this.message = DAMAGE_MESSAGES[damageLevel - 1] || '';
-    this.messageTimer = 120; // ~2 seconds at 60fps
+    this.messageTimer = 120;
     this.shakeIntensity = 15;
+  }
+
+  showSeasonChange(seasonLabel) {
+    this.seasonMessage = seasonLabel;
+    this.seasonTimer = 150; // ~2.5 seconds
   }
 
   update() {
     if (this.messageTimer > 0) this.messageTimer--;
+    if (this.seasonTimer > 0) this.seasonTimer--;
     if (this.shakeIntensity > 0) this.shakeIntensity *= 0.9;
     if (this.shakeIntensity < 0.5) this.shakeIntensity = 0;
   }
@@ -107,6 +117,24 @@ export class HUD {
       ctx.lineWidth = 3 * scale;
       ctx.strokeText(this.message, width / 2, height * 0.35);
       ctx.fillText(this.message, width / 2, height * 0.35);
+      ctx.globalAlpha = 1;
+    }
+
+    // Season transition (top center, large text)
+    if (this.seasonTimer > 0) {
+      // Fade in for first 30 frames, hold, fade out for last 30
+      let alpha;
+      if (this.seasonTimer > 120) alpha = (150 - this.seasonTimer) / 30;
+      else if (this.seasonTimer < 30) alpha = this.seasonTimer / 30;
+      else alpha = 1;
+      ctx.globalAlpha = alpha;
+      ctx.textAlign = 'center';
+      ctx.font = `bold ${28 * scale}px system-ui, -apple-system, sans-serif`;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 4 * scale;
+      ctx.strokeText(this.seasonMessage, width / 2, height * 0.2);
+      ctx.fillText(this.seasonMessage, width / 2, height * 0.2);
       ctx.globalAlpha = 1;
     }
   }

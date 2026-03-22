@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Road -->
+  <polygon points="520,250 680,250 1050,630 150,630" fill="#2a2a2a"/>
+  <polygon points="520,250 680,250 1080,630 1050,630" fill="#DD0000" opacity="0.6"/>
+  <polygon points="520,250 680,250 150,630 120,630" fill="#BBBBBB" opacity="0.4"/>
+
+  <!-- Potholes on road -->
+  <ellipse cx="500" cy="420" rx="35" ry="12" fill="#1a1a1a"/>
+  <ellipse cx="700" cy="480" rx="45" ry="15" fill="#1a1a1a"/>
+  <ellipse cx="580" cy="540" rx="55" ry="18" fill="#1a1a1a"/>
+
+  <!-- Title -->
+  <text x="600" y="140" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="72" fill="white">INDY POTHOLE</text>
+  <text x="600" y="215" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="72" fill="white">RUNNER</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="270" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#AAAACC">Survive the streets of Indianapolis</text>
+
+  <!-- URL -->
+  <text x="600" y="610" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#666688">indypotholes.org</text>
+</svg>

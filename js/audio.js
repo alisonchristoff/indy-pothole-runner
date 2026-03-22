@@ -7,6 +7,9 @@ export class Audio {
     this.ctx = null;
     this.muted = true; // default to muted
     this.initialized = false;
+    this.engineOsc = null;
+    this.engineGain = null;
+    this.engineRunning = false;
   }
 
   init() {
@@ -22,7 +25,57 @@ export class Audio {
   toggle() {
     this.muted = !this.muted;
     if (!this.initialized) this.init();
+    if (this.muted) {
+      this.stopEngine();
+    }
     return this.muted;
+  }
+
+  startEngine() {
+    if (this.muted || !this.ctx || this.engineRunning) return;
+    this.engineOsc = this.ctx.createOscillator();
+    this.engineGain = this.ctx.createGain();
+    this.engineOsc.type = 'sawtooth';
+    this.engineOsc.frequency.setValueAtTime(45, this.ctx.currentTime);
+    this.engineGain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+    this.engineOsc.connect(this.engineGain);
+    this.engineGain.connect(this.ctx.destination);
+    this.engineOsc.start();
+    this.engineRunning = true;
+  }
+
+  stopEngine() {
+    if (this.engineOsc && this.engineRunning) {
+      try {
+        this.engineOsc.stop();
+      } catch (e) {}
+      this.engineOsc = null;
+      this.engineGain = null;
+      this.engineRunning = false;
+    }
+  }
+
+  updateEngineSpeed(speed) {
+    if (!this.engineOsc || !this.engineRunning || this.muted) return;
+    // Map speed (2-8) to frequency (45-90 Hz)
+    const freq = 45 + (speed - 2) * 7.5;
+    this.engineOsc.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.1);
+  }
+
+  playWhoosh() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const noise = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    noise.type = 'sine';
+    noise.frequency.setValueAtTime(800, now);
+    noise.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    noise.connect(gain);
+    gain.connect(this.ctx.destination);
+    noise.start();
+    noise.stop(now + 0.3);
   }
 
   playHit() {
