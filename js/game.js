@@ -116,11 +116,13 @@ class Game {
         this.startGame();
       }
     } else if (this.state === STATES.GAME_OVER && this.buttons.gameOver) {
-      const { driveBtn, shareBtn } = this.buttons.gameOver;
+      const { driveBtn, shareBtn, creditBtn } = this.buttons.gameOver;
       if (this.hitTest(x, y, driveBtn)) {
         this.startGame();
       } else if (this.hitTest(x, y, shareBtn)) {
         this.share();
+      } else if (creditBtn && this.hitTest(x, y, creditBtn)) {
+        window.open('https://www.instagram.com/alisonkaychristoff/', '_blank');
       }
     } else if (this.state === STATES.PLAYING && this.buttons.pauseBtn) {
       if (this.hitTest(x, y, this.buttons.pauseBtn)) {

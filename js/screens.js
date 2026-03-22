@@ -229,9 +229,31 @@ export class Screens {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText('SHARE', shareX + btnW / 2, btnY + btnH * 0.63);
 
+    // Credit line
+    ctx.fillStyle = '#777799';
+    ctx.font = `${11 * scale}px system-ui, -apple-system, sans-serif`;
+    const creditText = 'Made by Alison Christoff';
+    const creditY = btnY + btnH + 24 * scale;
+    ctx.fillText(creditText, width / 2, creditY);
+    // Underline to hint it's tappable
+    const creditMetrics = ctx.measureText(creditText);
+    const creditW = creditMetrics.width;
+    ctx.strokeStyle = '#777799';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(width / 2 - creditW / 2, creditY + 3);
+    ctx.lineTo(width / 2 + creditW / 2, creditY + 3);
+    ctx.stroke();
+
+    const creditBounds = {
+      x: width / 2 - creditW / 2, y: creditY - 12 * scale,
+      w: creditW, h: 18 * scale,
+    };
+
     return {
       driveBtn: { x: driveX, y: btnY, w: btnW, h: btnH },
       shareBtn: { x: shareX, y: btnY, w: btnW, h: btnH },
+      creditBtn: creditBounds,
     };
   }
 
