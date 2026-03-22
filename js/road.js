@@ -82,6 +82,17 @@ export class Road {
       projected.push({ p, segIndex });
     }
 
+    // Fill gap between horizon and farthest segment with grass color
+    if (projected.length > 0) {
+      const farthestY = projected[projected.length - 1].p.y;
+      const horizonY = height * 0.4;
+      if (farthestY > horizonY) {
+        const farthestAlt = Math.floor(projected[projected.length - 1].segIndex / ROAD.RUMBLE_LENGTH) % 2 === 0;
+        ctx.fillStyle = this.getSeasonColors(season, farthestAlt).grass;
+        ctx.fillRect(0, horizonY, width, farthestY - horizonY + 1);
+      }
+    }
+
     // Draw from FARTHEST to NEAREST (painter's algorithm)
     for (let i = projected.length - 1; i > 0; i--) {
       const farSeg = projected[i];
@@ -122,7 +133,7 @@ export class Road {
 
       // Snow on road edges (winter)
       if (scenery) {
-        scenery.renderSnowForSegment(ctx, s1, s2, season);
+        scenery.renderSnowForSegment(ctx, s1, s2, season, width <= 500);
       }
 
       // Roadside objects (trees, buildings)

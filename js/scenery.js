@@ -76,7 +76,7 @@ function drawOneAmerica(ctx, x, baseY, w, h) {
 
 // ---- Roadside Trees ----
 
-function drawTree(ctx, x, baseY, size, season) {
+function drawTree(ctx, x, baseY, size, season, isMobile) {
   const trunkW = size * 0.15;
   const trunkH = size * 0.4;
 
@@ -84,20 +84,18 @@ function drawTree(ctx, x, baseY, size, season) {
   ctx.fillRect(x - trunkW / 2, baseY - trunkH, trunkW, trunkH);
 
   if (season === 'WINTER') {
-    ctx.strokeStyle = '#5C3D2E';
-    ctx.lineWidth = Math.max(1, size * 0.03);
-    ctx.beginPath();
-    ctx.moveTo(x, baseY - trunkH);
-    ctx.lineTo(x - size * 0.3, baseY - trunkH - size * 0.3);
-    ctx.moveTo(x, baseY - trunkH);
-    ctx.lineTo(x + size * 0.25, baseY - trunkH - size * 0.35);
-    ctx.moveTo(x, baseY - trunkH * 0.7);
-    ctx.lineTo(x - size * 0.2, baseY - trunkH - size * 0.15);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(220,230,240,0.6)';
-    ctx.beginPath();
-    ctx.ellipse(x, baseY, size * 0.2, size * 0.06, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (!isMobile) {
+      ctx.strokeStyle = '#5C3D2E';
+      ctx.lineWidth = Math.max(1, size * 0.03);
+      ctx.beginPath();
+      ctx.moveTo(x, baseY - trunkH);
+      ctx.lineTo(x - size * 0.3, baseY - trunkH - size * 0.3);
+      ctx.moveTo(x, baseY - trunkH);
+      ctx.lineTo(x + size * 0.25, baseY - trunkH - size * 0.35);
+      ctx.moveTo(x, baseY - trunkH * 0.7);
+      ctx.lineTo(x - size * 0.2, baseY - trunkH - size * 0.15);
+      ctx.stroke();
+    }
   } else {
     const foliageColor = season === 'FALL' ? '#C4762B' :
                          season === 'SPRING' ? '#3D8B37' : '#2D7B27';
@@ -106,33 +104,37 @@ function drawTree(ctx, x, baseY, size, season) {
     ctx.arc(x, baseY - trunkH - size * 0.25, size * 0.35, 0, Math.PI * 2);
     ctx.fill();
 
-    const foliageColor2 = season === 'FALL' ? '#D4863B' :
-                          season === 'SPRING' ? '#4D9B47' : '#3D8B37';
-    ctx.fillStyle = foliageColor2;
-    ctx.beginPath();
-    ctx.arc(x + size * 0.15, baseY - trunkH - size * 0.15, size * 0.25, 0, Math.PI * 2);
-    ctx.fill();
+    if (!isMobile) {
+      const foliageColor2 = season === 'FALL' ? '#D4863B' :
+                            season === 'SPRING' ? '#4D9B47' : '#3D8B37';
+      ctx.fillStyle = foliageColor2;
+      ctx.beginPath();
+      ctx.arc(x + size * 0.15, baseY - trunkH - size * 0.15, size * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 }
 
 // ---- Roadside Building ----
 
-function drawBuilding(ctx, x, baseY, w, h, season) {
+function drawBuilding(ctx, x, baseY, w, h, season, isMobile) {
   const bodyColors = ['#6B5B5B', '#5B6B6B', '#7B6B5B', '#5B5B6B', '#6B6B5B'];
   ctx.fillStyle = bodyColors[Math.floor(Math.abs(x * 7)) % bodyColors.length];
   ctx.fillRect(x - w / 2, baseY - h, w, h);
 
-  const winColor = season === 'WINTER' || season === 'FALL' ? '#FFE88B' : '#AAD4E8';
-  ctx.fillStyle = winColor;
-  const cols = 3;
-  const rows = 3;
-  const winW = w * 0.15;
-  const winH = h * 0.08;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const wx = x - w / 2 + w * 0.15 + c * (w * 0.25);
-      const wy = baseY - h + h * 0.12 + r * (h * 0.28);
-      ctx.fillRect(wx, wy, winW, winH);
+  if (!isMobile) {
+    const winColor = season === 'WINTER' || season === 'FALL' ? '#FFE88B' : '#AAD4E8';
+    ctx.fillStyle = winColor;
+    const cols = 3;
+    const rows = 3;
+    const winW = w * 0.15;
+    const winH = h * 0.08;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const wx = x - w / 2 + w * 0.15 + c * (w * 0.25);
+        const wy = baseY - h + h * 0.12 + r * (h * 0.28);
+        ctx.fillRect(wx, wy, winW, winH);
+      }
     }
   }
 }
@@ -171,6 +173,33 @@ function drawStreetSign3D(ctx, x, baseY, signName, size) {
 
 // ---- Landmarks ----
 // Each draws a recognizable silhouette at (x, baseY) with given size
+
+function drawLandmarkSimple(ctx, type, x, baseY, size, label) {
+  const s = size;
+  // Simplified landmark for mobile — just a colored block + label
+  const colorMap = {
+    statehouse: '#D8D0BE', fieldhouse: '#7A4A3A', speedway: '#7A7A7A',
+    museum: '#E0D8C8', cemetery: '#4A6A3A', university: '#8B4020',
+    monon: '#3A6A2A', broadripple: '#CC5544', stripmall: '#B0A898',
+    bigbox: '#8A8A8A', office: '#D8D0C0', arts: '#E8DDD0',
+  };
+  ctx.fillStyle = colorMap[type] || '#888';
+  ctx.fillRect(x - s * 0.5, baseY - s * 0.4, s * 1.0, s * 0.4);
+  // Roof
+  ctx.fillStyle = '#666';
+  ctx.fillRect(x - s * 0.52, baseY - s * 0.42, s * 1.04, s * 0.03);
+  // Windows
+  ctx.fillStyle = '#FFE88B';
+  for (let i = 0; i < 3; i++) {
+    ctx.fillRect(x - s * 0.35 + i * s * 0.25, baseY - s * 0.3, s * 0.12, s * 0.1);
+  }
+  if (s >= 8) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `bold ${Math.max(5, Math.min(12, s * 0.15))}px system-ui, -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, baseY + s * 0.12);
+  }
+}
 
 function drawLandmark(ctx, type, x, baseY, size, label) {
   const s = size;
@@ -684,10 +713,11 @@ function drawLandmark(ctx, type, x, baseY, size, label) {
 
 // ---- Rain Effect ----
 
-function drawRain(ctx, width, height, phase) {
+function drawRain(ctx, width, height, phase, isMobile) {
   ctx.strokeStyle = 'rgba(180,200,220,0.3)';
   ctx.lineWidth = 1;
-  for (let i = 0; i < 60; i++) {
+  const count = isMobile ? 25 : 60;
+  for (let i = 0; i < count; i++) {
     const x = (i * 97 + phase * 3) % width;
     const y = (i * 131 + phase * 7) % height;
     ctx.beginPath();
@@ -771,7 +801,13 @@ export class Scenery {
     const h2 = this.hash(segIndex + 1000);
     const h3 = this.hash(segIndex + 2000); // separate hash for side
 
-    if (h1 > 0.25) return;
+    // Reduce roadside object density on mobile (skip half)
+    const isMobile = width <= 500;
+    if (isMobile) {
+      if (h1 > 0.12) return;
+    } else {
+      if (h1 > 0.25) return;
+    }
 
     const isTree = h2 > 0.35; // 65% trees, 35% buildings
     const side = h3 > 0.5 ? 1 : -1;
@@ -794,13 +830,13 @@ export class Scenery {
     if (isTree) {
       // Anchor tree trunk at road edge + gap, foliage grows outward
       const treeX = roadEdge + side * (gap + objSize * 0.2);
-      drawTree(ctx, treeX, objY, objSize, season);
+      drawTree(ctx, treeX, objY, objSize, season, isMobile);
     } else {
       const bldgW = objSize * 1.8;
       const bldgH = objSize * (2 + h1 * 3);
       // Anchor building's road-facing edge at road edge + gap
       const bldgX = roadEdge + side * (gap + bldgW / 2);
-      drawBuilding(ctx, bldgX, objY, bldgW, bldgH, season);
+      drawBuilding(ctx, bldgX, objY, bldgW, bldgH, season, isMobile);
     }
   }
 
@@ -838,6 +874,8 @@ export class Scenery {
   renderLandmarks(ctx, width, height, position) {
     this.activeLandmarks = this.activeLandmarks.filter(l => l.z > position - 500);
 
+    const isMobile = width <= 500;
+
     for (const lm of this.activeLandmarks) {
       const dz = lm.z - position;
       if (dz <= 10 || dz > 8000) continue;
@@ -860,18 +898,23 @@ export class Scenery {
       const lmSize = Math.max(8, roadHalfW * 0.75);
       if (lmSize < 5) continue;
 
-      drawLandmark(ctx, lm.type, lmX, screenY, lmSize, lm.label);
+      // Use simplified drawing on mobile for performance
+      if (isMobile) {
+        drawLandmarkSimple(ctx, lm.type, lmX, screenY, lmSize, lm.label);
+      } else {
+        drawLandmark(ctx, lm.type, lmX, screenY, lmSize, lm.label);
+      }
     }
   }
 
   renderWeather(ctx, width, height, season, phase) {
     if (season === 'SPRING') {
-      drawRain(ctx, width, height, phase);
+      drawRain(ctx, width, height, phase, width <= 500);
     }
   }
 
-  renderSnowForSegment(ctx, s1, s2, season) {
-    if (season === 'WINTER') {
+  renderSnowForSegment(ctx, s1, s2, season, isMobile) {
+    if (season === 'WINTER' && !isMobile) {
       drawSnowEdges(ctx, s1, s2);
     }
   }
