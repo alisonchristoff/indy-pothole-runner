@@ -75,22 +75,43 @@ export class Screens {
       ctx.fill();
     }
 
-    // Title
+    // Title — "AVOID INDY POTHOLES" in a rougher, road-worn style
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#FFFFFF';
+
+    // Draw each word with slight offsets and rotation for a hand-painted road sign feel
+    ctx.save();
+    ctx.translate(width / 2, height * 0.13);
+
+    // "AVOID" — slightly tilted, yellow warning color
+    ctx.fillStyle = '#FFD700';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3 * scale;
-    ctx.font = `bold ${36 * scale}px system-ui, -apple-system, sans-serif`;
-    ctx.strokeText('INDY POTHOLE', width / 2, height * 0.18);
-    ctx.fillText('INDY POTHOLE', width / 2, height * 0.18);
-    ctx.strokeText('RUNNER', width / 2, height * 0.18 + 42 * scale);
-    ctx.fillText('RUNNER', width / 2, height * 0.18 + 42 * scale);
+    ctx.font = `bold italic ${26 * scale}px Georgia, "Times New Roman", serif`;
+    ctx.rotate(-0.03);
+    ctx.strokeText('AVOID', 0, 0);
+    ctx.fillText('AVOID', 0, 0);
+
+    // "INDY" — big and bold, white
+    ctx.rotate(0.03);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `bold ${40 * scale}px Georgia, "Times New Roman", serif`;
+    ctx.strokeText('INDY', 0, 40 * scale);
+    ctx.fillText('INDY', 0, 40 * scale);
+
+    // "POTHOLES" — widest word, slightly rough
+    ctx.rotate(0.02);
+    ctx.fillStyle = '#FF6B4A';
+    ctx.font = `bold italic ${32 * scale}px Georgia, "Times New Roman", serif`;
+    ctx.strokeText('POTHOLES', 0, 78 * scale);
+    ctx.fillText('POTHOLES', 0, 78 * scale);
+
+    ctx.restore();
 
     // Subtitle
+    ctx.textAlign = 'center';
     ctx.fillStyle = '#AAAACC';
-    ctx.lineWidth = 0;
-    ctx.font = `${16 * scale}px system-ui, -apple-system, sans-serif`;
-    ctx.fillText('Survive the streets of Indianapolis', width / 2, height * 0.18 + 80 * scale);
+    ctx.font = `${14 * scale}px Georgia, "Times New Roman", serif`;
+    ctx.fillText('Survive the streets of Indianapolis', width / 2, height * 0.13 + 100 * scale);
 
     // Drive button
     const btnW = 200 * scale;
@@ -98,24 +119,26 @@ export class Screens {
     const btnX = width / 2 - btnW / 2;
     const btnY = height * 0.38;
 
-    // Button glow
-    ctx.shadowColor = '#4488FF';
-    ctx.shadowBlur = 20 + Math.sin(animPhase * 0.05) * 10;
+    // Button glow — use a simple border pulse instead of expensive shadowBlur
+    const pulse = 0.6 + Math.sin(animPhase * 0.05) * 0.4;
+    ctx.strokeStyle = `rgba(68,136,255,${pulse})`;
+    ctx.lineWidth = 3 * scale;
+    ctx.beginPath();
+    ctx.roundRect(btnX - 2, btnY - 2, btnW + 4, btnH + 4, 14 * scale);
+    ctx.stroke();
 
     ctx.fillStyle = '#2E5CB8';
     ctx.beginPath();
     ctx.roundRect(btnX, btnY, btnW, btnH, 12 * scale);
     ctx.fill();
 
-    ctx.shadowBlur = 0;
-
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold ${28 * scale}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `bold ${28 * scale}px Georgia, "Times New Roman", serif`;
     ctx.fillText('DRIVE', width / 2, btnY + btnH * 0.65);
 
     // Controls hint
     ctx.fillStyle = '#777799';
-    ctx.font = `${12 * scale}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `${12 * scale}px Georgia, "Times New Roman", serif`;
     ctx.fillText('Swipe or arrow keys to dodge potholes', width / 2, btnY + btnH + 30 * scale);
 
     // Return button bounds for click detection

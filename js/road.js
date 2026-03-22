@@ -7,6 +7,9 @@ import { ROAD, COLORS, SEASONS } from './constants.js';
 export class Road {
   constructor() {
     this.segmentLength = 200; // world units per segment
+    this._cachedSkyGrad = null;
+    this._cachedSkySeason = null;
+    this._cachedSkyH = 0;
   }
 
   getSeason(miles) {
@@ -45,12 +48,16 @@ export class Road {
   render(ctx, width, height, position, playerX, speed, miles, scenery) {
     const season = this.getSeason(miles);
 
-    // Draw sky (full canvas, road draws on top)
-    const skyColors = COLORS['SKY_' + season];
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.5);
-    skyGrad.addColorStop(0, skyColors.top);
-    skyGrad.addColorStop(1, skyColors.bottom);
-    ctx.fillStyle = skyGrad;
+    // Draw sky (full canvas, road draws on top) — cache gradient
+    if (this._cachedSkySeason !== season || this._cachedSkyH !== height) {
+      const skyColors = COLORS['SKY_' + season];
+      this._cachedSkyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.5);
+      this._cachedSkyGrad.addColorStop(0, skyColors.top);
+      this._cachedSkyGrad.addColorStop(1, skyColors.bottom);
+      this._cachedSkySeason = season;
+      this._cachedSkyH = height;
+    }
+    ctx.fillStyle = this._cachedSkyGrad;
     ctx.fillRect(0, 0, width, height);
 
     // Draw skyline silhouette on the horizon
@@ -60,9 +67,12 @@ export class Road {
 
     const baseSegIndex = Math.floor(position / this.segmentLength);
 
+    // Reduce draw distance on mobile for performance
+    const drawDist = width <= 500 ? Math.min(60, ROAD.DRAW_DISTANCE) : ROAD.DRAW_DISTANCE;
+
     // Camera stays centered on road
     const projected = [];
-    for (let n = 1; n <= ROAD.DRAW_DISTANCE; n++) {
+    for (let n = 1; n <= drawDist; n++) {
       const segIndex = baseSegIndex + n;
       const worldZ = segIndex * this.segmentLength;
 

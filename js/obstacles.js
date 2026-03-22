@@ -106,7 +106,9 @@ export class Obstacles {
   }
 
   render(ctx, width, height, position) {
-    // Sort far-to-near (painter's algorithm)
+    const isMobile = width <= 500;
+
+    // Sort far-to-near (painter's algorithm), limit count on mobile
     const sorted = this.potholes
       .filter(p => {
         const dz = p.z - position;
@@ -114,34 +116,45 @@ export class Obstacles {
       })
       .sort((a, b) => b.z - a.z);
 
-    for (const pothole of sorted) {
+    const maxDraw = isMobile ? 20 : sorted.length;
+
+    for (let idx = 0; idx < Math.min(sorted.length, maxDraw); idx++) {
+      const pothole = sorted[idx];
       const dz = pothole.z - position;
       const scale = ROAD.CAMERA_DEPTH / dz;
       const horizonY = height * 0.4;
       const screenY = horizonY + scale * ROAD.CAMERA_HEIGHT * height;
 
-      // Road half-width at this depth
       const roadHalfW = scale * ROAD.ROAD_WIDTH * width / 2;
-
-      // Pothole screen position
       const screenX = width / 2 + pothole.x * roadHalfW;
-
-      // Pothole visual size scales with perspective
       const screenSize = scale * pothole.size * width * 0.12;
-      if (screenSize < 1) continue;
+      if (screenSize < 1.5) continue;
       if (screenY < 0 || screenY > height) continue;
 
       const elong = pothole.elongation || 1;
       const jaggedPts = pothole.jagged || [];
       const numPts = jaggedPts.length || 10;
 
-      // Outer ring (cracked asphalt edge) — jagged shape
+      // For tiny distant potholes, use simple ellipses instead of jagged paths
+      if (screenSize < 5) {
+        ctx.fillStyle = COLORS.POTHOLE_RING;
+        ctx.beginPath();
+        ctx.ellipse(screenX, screenY, screenSize * 1.3 * elong, screenSize * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pothole.isWater ? '#2A4A6A' : COLORS.POTHOLE_FILL;
+        ctx.beginPath();
+        ctx.ellipse(screenX, screenY, screenSize * elong, screenSize * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+        continue;
+      }
+
+      // Outer ring — jagged shape
       ctx.fillStyle = COLORS.POTHOLE_RING;
       ctx.beginPath();
       for (let i = 0; i <= numPts; i++) {
-        const idx = i % numPts;
-        const angle = (idx / numPts) * Math.PI * 2;
-        const jag = jaggedPts[idx] || 1;
+        const ii = i % numPts;
+        const angle = (ii / numPts) * Math.PI * 2;
+        const jag = jaggedPts[ii] || 1;
         const rx = screenSize * 1.3 * elong * jag;
         const ry = screenSize * 0.5 * jag;
         const px = screenX + Math.cos(angle) * rx;
@@ -152,13 +165,13 @@ export class Obstacles {
       ctx.closePath();
       ctx.fill();
 
-      // Inner hole — jagged but slightly smoother
+      // Inner hole
       ctx.fillStyle = pothole.isWater ? '#2A4A6A' : COLORS.POTHOLE_FILL;
       ctx.beginPath();
       for (let i = 0; i <= numPts; i++) {
-        const idx = i % numPts;
-        const angle = (idx / numPts) * Math.PI * 2;
-        const jag = 0.7 + jaggedPts[idx] * 0.3;
+        const ii = i % numPts;
+        const angle = (ii / numPts) * Math.PI * 2;
+        const jag = 0.7 + jaggedPts[ii] * 0.3;
         const rx = screenSize * elong * jag;
         const ry = screenSize * 0.35 * jag;
         const px = screenX + Math.cos(angle) * rx;
@@ -169,8 +182,8 @@ export class Obstacles {
       ctx.closePath();
       ctx.fill();
 
-      // Cracked edges detail (for larger potholes)
-      if (screenSize > 8) {
+      // Crack details — skip on mobile for perf
+      if (!isMobile && screenSize > 8) {
         ctx.strokeStyle = 'rgba(60,60,60,0.5)';
         ctx.lineWidth = Math.max(0.5, screenSize * 0.03);
         for (let i = 0; i < 3; i++) {

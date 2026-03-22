@@ -89,7 +89,9 @@ class Game {
   }
 
   resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Cap DPR lower on mobile to save fill-rate — 3x iPhones drop to 1.5x
+    const isMobile = window.innerWidth <= 500;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
     const container = document.getElementById('gameContainer');
     const rect = container.getBoundingClientRect();
 
