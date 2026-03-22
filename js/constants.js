@@ -46,44 +46,45 @@ export const SEASONS = {
 };
 
 // Each tier has a pool of possible damages with varied costs
+// Use {street} as a placeholder — gets replaced with current street at runtime
 export const DAMAGE_TIERS = [
   // Tier 1 — minor
   [
     { message: 'Your alignment is off', cost: 387 },
     { message: 'Scraped the undercarriage', cost: 295 },
     { message: 'Spilled your coffee', cost: 8 },
-    { message: 'Cracked a hubcap', cost: 180 },
+    { message: 'Cracked a hubcap on {street}', cost: 180 },
     { message: 'Bumper is rattling', cost: 425 },
   ],
   // Tier 2 — moderate
   [
     { message: 'Check engine light on', cost: 742 },
-    { message: 'Tire pressure warning', cost: 520 },
-    { message: 'Lost a side mirror on Meridian St', cost: 680 },
+    { message: 'Tire pressure warning near {street}', cost: 520 },
+    { message: 'Lost a side mirror on {street}', cost: 680 },
     { message: 'Muffler is dragging', cost: 890 },
     { message: 'Suspension is groaning', cost: 615 },
   ],
   // Tier 3 — significant
   [
-    { message: 'Hubcap flew off near College Ave', cost: 1205 },
-    { message: 'Flat tire on the west side', cost: 950 },
+    { message: 'Hubcap flew off near {street}', cost: 1205 },
+    { message: 'Flat tire on {street}', cost: 950 },
     { message: 'Radiator is leaking', cost: 1380 },
-    { message: 'Oil pan cracked open', cost: 1150 },
+    { message: 'Oil pan cracked open on {street}', cost: 1150 },
     { message: 'Transmission is slipping', cost: 1425 },
   ],
   // Tier 4 — severe
   [
     { message: 'Axle is hanging on by a prayer', cost: 1863 },
-    { message: 'Frame is bent — barely drivable', cost: 2100 },
+    { message: 'Frame is bent near {street}', cost: 2100 },
     { message: 'Steering column is loose', cost: 1750 },
     { message: 'Engine is knocking badly', cost: 1950 },
-    { message: 'Wheel bearing disintegrated', cost: 1680 },
+    { message: 'Wheel bearing disintegrated on {street}', cost: 1680 },
   ],
   // Tier 5 — fatal
   [
     { message: "Your car didn't make it", cost: 2450 },
-    { message: 'Car broke down on 38th St', cost: 2800 },
-    { message: 'Engine seized — tow truck called', cost: 3200 },
+    { message: 'Car broke down on {street}', cost: 2800 },
+    { message: 'Engine seized on {street} — tow truck called', cost: 3200 },
     { message: 'Total loss — call your insurance', cost: 2650 },
     { message: "That's it. The car is done.", cost: 2950 },
   ],

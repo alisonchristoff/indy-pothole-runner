@@ -245,10 +245,11 @@ class Game {
       this.car.hit();
       const dmg = this.car.damage;
       const tier = DAMAGE_TIERS[dmg - 1] || DAMAGE_TIERS[DAMAGE_TIERS.length - 1];
-      const pick = tier[Math.floor(Math.random() * tier.length)];
-      this.repairCost += pick.cost;
-      this.damageLog.push(pick);
-      this.hud.showMessage(pick.message);
+      const template = tier[Math.floor(Math.random() * tier.length)];
+      const message = template.message.replace('{street}', this.lastStreet);
+      this.repairCost += template.cost;
+      this.damageLog.push({ message, cost: template.cost });
+      this.hud.showMessage(message);
       this.audio.playHit();
 
       if (dmg >= CAR.MAX_DAMAGE) {
